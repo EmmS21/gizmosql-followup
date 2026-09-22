@@ -1,0 +1,5089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Follow-up</title>
+  <style>
+    :root {
+      --ink: #2a2420;
+      --carpet: #a9845c;
+      --wood: #8a5a32;
+      --amber: #e09a32;
+      --coral: #c44b32;
+      --paper: #f6eed8;
+      --ice: #3d6d82;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #2b2620;
+      color: var(--ink);
+      font: 14px/1.35 "Trebuchet MS", "Segoe UI", sans-serif;
+    }
+    button, select { font: inherit; color: inherit; cursor: pointer; }
+    #game { height: 100%; position: relative; }
+    .main {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      min-height: 0;
+    }
+
+    .office {
+      --scale: 1;
+      flex: 1.4;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      margin: 0;
+      background:
+        radial-gradient(ellipse 70% 36% at 50% 8%, rgba(255, 226, 176, 0.22) 0%, transparent 72%),
+        radial-gradient(ellipse 28% 22% at 16% 70%, rgba(62, 34, 12, 0.10) 0%, transparent 70%),
+        radial-gradient(ellipse 24% 18% at 82% 86%, rgba(48, 26, 10, 0.11) 0%, transparent 68%),
+        linear-gradient(#b89264, var(--carpet) 40%, #9a734c);
+      border: 8px solid #5a3d28;
+      overflow: hidden;
+    }
+    .office.shut { filter: grayscale(0.4) brightness(0.88); }
+    .office.slow .person { filter: saturate(0.75); }
+    #office.offices {
+      display: flex;
+      flex-direction: row;
+      flex: 1.4;
+      min-width: 0;
+      min-height: 0;
+      margin: 0;
+      gap: 4px;
+    }
+    .office.split {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      margin: 0;
+      border-width: 5px;
+    }
+    .office.split .runway {
+      height: 20px;
+      gap: 3px;
+      padding: 0 4px;
+      overflow: hidden;
+    }
+    .office.split .procs { min-width: 0; flex: 1; }
+    .office.split .ptab .tick { display: none; }
+    .office.split .ptab b {
+      font-size: 5px;
+      letter-spacing: 0;
+      padding: 2px 3px;
+    }
+    .office.split .agent,
+    .office.split .gbox { gap: 0; flex-shrink: 0; }
+    .office.split .agent b,
+    .office.split .gbox b {
+      font-size: 6px;
+      padding: 2px 5px;
+    }
+    .office.split .floor { inset: 222px 0 0; }
+    .office.split .wharf { font-size: 7px; padding: 3px 5px; }
+    .office.split .wharf b { font-size: 7px; }
+    .office.split .bay { min-height: 36px; padding: 2px 3px; }
+    .office.split .bay .lbl { font-size: 6px; }
+    .office.split .cmp { font-size: 7px; }
+    .office.split .vs-bar { font-size: 11px; padding: 4px 6px; }
+    .office.split .wh-budget .amt { font-size: 11px; }
+    .office.split .wh-budget .meter { width: 20px; height: 32px; }
+    .office.split .budget-banner { font-size: 8px; padding: 3px 5px; }
+    .office.split .slack { font-size: 11px; padding: 6px 8px; }
+    .office.split .slack b.stop { font-size: 13px; }
+    .office.split .cloud { width: 22px; height: 22px; }
+    .office.split .cloud .emo { font-size: 12px; }
+    .office.split .askline { font-size: 12px; max-width: 130px; }
+    .office.split .cdot { font-size: 5px; padding: 0 2px; }
+    .office.split .crow { grid-template-columns: 44px 1fr 1fr 1fr 1fr; gap: 2px; }
+    .office.split .crow > b { font-size: 6px; padding-top: 3px; }
+    .office.split .cstep { padding: 2px 3px; }
+    .office.split .cstep em { font-size: 6px; }
+    .office.split .cstep i { font-size: 7px; }
+
+    .hvac {
+      position: relative;
+      flex-shrink: 0;
+      height: auto;
+      background:
+        repeating-linear-gradient(90deg, transparent 0 48px, rgba(0, 0, 0, 0.14) 48px 49px),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.03) 0 2px, transparent 2px 8px),
+        linear-gradient(#4a5660, #2a333a 55%, #1e262c);
+      border-bottom: 5px solid #14181c;
+      color: #e8e2d6;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      box-shadow: inset 0 18px 40px #9ec4d418;
+    }
+    .engines {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 8px;
+      flex-shrink: 0;
+      min-height: 0;
+    }
+    .engines > button {
+      border: 2px solid #1a2024;
+      background: #c8cdd0;
+      color: #1a2024;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 7px;
+      border-radius: 4px;
+    }
+    .engines button.on { background: var(--amber); }
+    .vs-bar {
+      flex-shrink: 0;
+      padding: 7px 10px;
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      background: #2a2420;
+      color: #f3ead8;
+      border-bottom: 3px solid #111;
+    }
+    .vs-bar.giz { background: #2f6f8a; }
+    .vs-bar em { font-style: normal; font-weight: 700; font-size: 11px; opacity: 0.8; margin-left: 8px; }
+    .engines.gizonly { min-height: 0; color: #e4eef2; font-weight: 800; font-size: 12px; }
+    .vs-ledgers {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 6px;
+      margin-bottom: 8px;
+      min-width: 0;
+      width: 100%;
+    }
+    .vs-ledgers .soldbig {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      margin-bottom: 0;
+      overflow: hidden;
+      text-align: left;
+      white-space: normal;
+    }
+    .vs-ledgers .soldbig .k {
+      overflow-wrap: anywhere;
+    }
+    .vs-ledgers .soldbig .ba {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .vs-ledgers .soldbig .n {
+      font-size: 20px;
+      overflow-wrap: anywhere;
+    }
+    .vs-ledgers .soldbig .sub {
+      font-size: 10px;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .soldbig.giz { border-color: #2f6f8a; }
+    .soldbig.giz .n { color: #2f6f8a; }
+    .stage {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 0 8px 2px;
+      flex: 0 0 auto;
+      min-height: 0;
+    }
+    .wharf {
+      width: min(520px, 96%);
+      background: linear-gradient(#3a4248, #2a3238 40%, #232a30);
+      border: 2px solid #1a2024;
+      padding: 5px 7px;
+      font-size: 8px;
+      position: relative;
+      box-shadow: inset 0 1px 0 #6a7278, 0 2px 0 #111;
+    }
+    .wharf b {
+      display: block;
+      font-size: 8px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      opacity: 0.55;
+      margin-bottom: 2px;
+    }
+    .wharf.hit { border-color: var(--amber); box-shadow: 0 0 0 2px #e09a3255; }
+    .wharf.work { border-color: #6af; box-shadow: 0 0 0 2px #66aaff55; }
+    .wharf.dim { opacity: 0.4; }
+    .wharf.duck { border-color: #2f6f8a; }
+    .wharf.duck .wharf-head > b { opacity: 1; color: #8ec8e0; }
+    .wharf .whoowns {
+      font-size: 10px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .wharf-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    .wh-budget {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      border: 0;
+      background: none;
+      color: inherit;
+      padding: 0;
+      font: inherit;
+    }
+    .wh-budget .tankwrap { display: block; }
+    .wh-budget .tank {
+      width: 168px;
+      height: 16px;
+      background: #1a2228;
+      border: 1px solid #8aa;
+    }
+    .wh-budget .tank i { background: #6a8; }
+    .wh-budget.warn .tank i { background: #e09a32; animation: tankpulse 0.9s ease infinite; }
+    .wh-budget.dead .tank i { background: var(--coral); animation: tankpulse 0.45s ease infinite; }
+    .wh-id { display: flex; align-items: center; gap: 8px; }
+    .wh-power {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+    .wh-power i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #3a4548;
+      border: 1px solid #111;
+    }
+    .wh-power.on { color: #e09a32; opacity: 1; }
+    .wh-power.on i { background: #e09a32; box-shadow: 0 0 8px #e09a32; animation: tankpulse 0.7s ease infinite; }
+    .wh-power.idle i { background: #2a3238; }
+    .wh-budget .meter {
+      width: 28px;
+      height: 44px;
+      background: #12181c;
+      border: 2px solid #c4d0d4;
+      border-radius: 2px 2px 4px 4px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px #0a1014, 0 0 0 1px #111;
+    }
+    .wh-budget .meter:after {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 3px;
+      bottom: 3px;
+      width: 5px;
+      background: #fff2;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .wh-budget .meter i {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(#8cb, #6a8);
+      transition: height 0.55s ease;
+    }
+    .wh-budget .meter i.draining { box-shadow: 0 -4px 8px #c44b32aa; }
+    .wh-budget.warn .meter i { background: #e09a32; animation: tankpulse 0.9s ease infinite; }
+    .wh-budget.dead .meter i { background: var(--coral); animation: tankpulse 0.45s ease infinite; }
+    .wh-budget .meter .m75, .wh-budget .meter .m90 {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: #e8e2d688;
+      z-index: 1;
+    }
+    .wh-budget .meter .m75 { bottom: 75%; }
+    .wh-budget .meter .m90 { bottom: 90%; }
+    .wh-budget.draining .amt { color: #f3b2a4; }
+    @keyframes tankpulse { 50% { opacity: 0.45; } }
+    .wh-budget .tics {
+      position: relative;
+      display: block;
+      width: 168px;
+      height: 12px;
+      font-size: 8px;
+      font-weight: 800;
+    }
+    .wh-budget .tics u {
+      position: absolute;
+      top: 0;
+      transform: translateX(-50%);
+      font-style: normal;
+      text-decoration: none;
+      opacity: 0.7;
+    }
+    .wh-budget .amt { font-size: 14px; font-weight: 800; white-space: nowrap; }
+    .wh-budget .amt em { font-style: normal; opacity: 0.55; font-size: 10px; }
+    .wh-budget.dead .amt { color: #f3b2a4; }
+    .wh-budget.warn .amt { color: #e09a32; }
+    .budget-banner {
+      margin-top: 4px;
+      padding: 5px 8px;
+      font-weight: 800;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      border: 2px solid #1a2024;
+      background: #243038;
+    }
+    .budget-banner.warn { background: #f3e0b8; color: #2a2420; border-color: #c47a32; }
+    .budget-banner.dead { background: var(--coral); color: #fff; border-color: #111; }
+    .office.hot { border-color: #c47a32; }
+    .office.panic { border-color: var(--coral); }
+    .office.panic .wharf, .office.hot .wharf.warnish { border-color: var(--coral); }
+    .slack {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      top: 8px;
+      transform: none;
+      width: auto;
+      z-index: 30;
+      background: #fff;
+      color: var(--ink);
+      border: 4px solid var(--coral);
+      padding: 12px 14px;
+      font-size: 14px;
+    }
+    .slack b.stop {
+      display: block;
+      font-size: 18px;
+      color: var(--coral);
+      margin-bottom: 6px;
+    }
+    .slack i { display: block; font-size: 10px; color: #7a7068; margin-bottom: 4px; }
+    .slack p { margin: 0 0 8px; }
+    .slack .cuts { display: flex; flex-direction: column; gap: 5px; }
+    .slack button {
+      border: 2px solid #111;
+      background: #f3eadc;
+      font-weight: 800;
+      padding: 6px 8px;
+      text-align: left;
+    }
+    .slack button:hover { background: var(--amber); }
+    .slack.pin {
+      position: static;
+      transform: none;
+      width: auto;
+      margin-top: 6px;
+      padding: 5px 8px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .slack.pin.dead { background: #f3d8d0; border-color: var(--coral); }
+    .pipe {
+      display: grid;
+      grid-template-columns: 1fr 54px 1fr 1fr;
+      gap: 5px;
+      align-items: stretch;
+      margin-top: 4px;
+      position: relative;
+    }
+    .bay, .cmp { position: relative; }
+    .bay::before, .cmp::before {
+      content: "";
+      position: absolute;
+      left: -6px;
+      top: 50%;
+      width: 5px;
+      height: 3px;
+      margin-top: -1px;
+      background: #4a5a60;
+    }
+    .bay[data-unit=inbox]::before { display: none; }
+    .bay[data-unit=inbox]::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -7px;
+      width: 3px;
+      height: 7px;
+      margin-left: -1px;
+      background: repeating-linear-gradient(#8aa 0 3px, transparent 3px 5px);
+    }
+    .pipe.feed .bay[data-unit=inbox]::after,
+    .pipe.work .bay.work::before,
+    .pipe.hit .cmp::before,
+    .pipe.hit .bay.hit::before {
+      background: var(--amber);
+      box-shadow: 0 0 6px #e09a32;
+    }
+    .pipe.gizpath .bay.hit::before, .pipe.gizpath .cmp.same::before {
+      background: #8ec8e0;
+      box-shadow: 0 0 6px #2f6f8a;
+    }
+    .bay .led {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #2a3238;
+      border: 1px solid #111;
+    }
+    .bay.hit .led { background: var(--amber); box-shadow: 0 0 6px #e09a32; }
+    .bay.work .led { background: #6af; box-shadow: 0 0 6px #66aaff; animation: tankpulse 0.55s ease infinite; }
+    .bay {
+      background: #1a2228;
+      border: 2px solid #1a2024;
+      padding: 4px 5px;
+      min-height: 52px;
+    }
+    .bay.hit { border-color: var(--amber); background: #3a3420; }
+    .bay.work { border-color: #6af; background: #1a2a38; }
+    .bay.miss { opacity: 0.35; }
+    .bay .lbl {
+      font-size: 8px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      opacity: 0.7;
+      font-weight: 800;
+    }
+    .cmp {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 9px;
+      text-align: center;
+      border: 2px dashed #5a7078;
+      background: #243038;
+    }
+    .cmp.same { border-color: var(--amber); border-style: solid; color: var(--amber); }
+    .cmp.new { border-color: #6af; border-style: solid; color: #8eb; }
+    .cable { display: none; }
+    .runway {
+      position: relative;
+      flex-shrink: 0;
+      height: 28px;
+      margin: 0;
+      background: #1e2428;
+      border-top: 2px solid #14181c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      z-index: 6;
+      color: #f3ead8;
+    }
+    .agent, .gbox {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: auto;
+      margin: 0;
+      padding: 0;
+      font-size: 9px;
+      background: none;
+      border: 0;
+    }
+    .agent b, .gbox b {
+      display: inline-block;
+      font-size: 10px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      border-radius: 999px;
+      padding: 5px 11px;
+    }
+    .agent b { background: var(--amber); color: var(--ink); }
+    .agent.live b { box-shadow: 0 0 0 2px #fff; }
+    .gbox b { background: #e4eef2; color: #2f6f8a; border: 2px solid #2f6f8a; }
+    .gbox.dim { opacity: 0.35; }
+    .gbox.hit b { box-shadow: 0 0 0 2px #8ec8e0; }
+    .runway .askchip { margin-top: 0; }
+    .procs {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .ptab {
+      display: flex;
+      align-items: center;
+      border: 0;
+      background: none;
+      padding: 0;
+      color: inherit;
+      font: inherit;
+    }
+    .ptab b {
+      display: inline-block;
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      border-radius: 999px;
+      padding: 4px 7px;
+      background: #f3ead8;
+      color: var(--ink);
+    }
+    .ptab.live b {
+      background: var(--amber);
+      box-shadow: 0 0 0 2px #fff;
+    }
+    .ptab.idle b { opacity: 0.4; }
+    .ptab.lock b, .ptab.off b { opacity: 0.22; }
+    .ptab .tick {
+      width: 8px;
+      height: 2px;
+      background: #c4b8a4;
+      flex-shrink: 0;
+    }
+    .ptab.on .tick, .ptab.live .tick { background: var(--amber); }
+    .ptab.idle .tick, .ptab.lock .tick, .ptab.off .tick { background: #5a5048; opacity: 0.45; }
+    .askchip {
+      display: inline-block;
+      background: #fff;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 6px;
+      margin-top: 3px;
+    }
+    .askchip.same { background: var(--amber); }
+    .askchip.signal { border-style: dashed; font-weight: 600; }
+    .slot {
+      background: #2a3238;
+      border: 2px solid #1a2024;
+      padding: 5px 6px;
+      font-size: 9px;
+      min-width: 0;
+      overflow: visible;
+    }
+    .slot b {
+      display: block;
+      font-size: 9px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      opacity: 0.55;
+      margin-bottom: 4px;
+    }
+    .slot.sql { background: #243038; }
+    .slot.hit { border-color: var(--amber); box-shadow: 0 0 0 2px #e09a3255; }
+    .slot.work { border-color: #6af; box-shadow: 0 0 0 2px #66aaff55; }
+    .slot.dim { opacity: 0.4; }
+    .sqltile {
+      display: inline-block;
+      background: #1a2228;
+      border: 1px solid #8aa;
+      color: #cfe;
+      padding: 2px 5px;
+      margin: 0 3px 3px 0;
+      font: 10px/1.2 ui-monospace, Menlo, monospace;
+      font-weight: 700;
+    }
+    .sqltile.in { animation: tilein 0.45s ease; }
+    @keyframes tilein { from { transform: translateY(6px); opacity: 0; } }
+    .tray {
+      min-height: 28px;
+      border: 2px dashed #5a7078;
+      padding: 3px;
+      margin-top: 2px;
+    }
+    .slot.hit .tray { border-style: solid; border-color: var(--amber); background: #3a3420; }
+    .fan {
+      width: 22px;
+      height: 22px;
+      margin: 6px auto 0;
+      border: 3px solid #89a;
+      border-radius: 50%;
+      border-top-color: transparent;
+      opacity: 0.25;
+    }
+    .slot.hit .fan { opacity: 1; animation: spin 0.9s linear infinite; }
+    .gears { position: relative; width: 44px; height: 28px; margin: 6px auto 0; }
+    .gear {
+      position: absolute;
+      border: 4px solid #8eb;
+      border-radius: 50%;
+      opacity: 0.22;
+    }
+    .gear.a { width: 24px; height: 24px; left: 0; top: 4px; }
+    .gear.b { width: 16px; height: 16px; left: 22px; top: 0; }
+    .slot.work .gear, .bay.work .gear { opacity: 1; animation: spin 0.7s linear infinite; }
+    .slot.work .gear.b, .bay.work .gear.b { animation-direction: reverse; }
+    .bay .sub, .wharf .sub { margin-top: 3px; opacity: 0.75; font-weight: 600; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .storage {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 2px;
+      margin-top: 6px;
+    }
+    .storage i { height: 7px; background: #4a6570; display: block; }
+    .slot.work .storage i:nth-child(-n+4) { background: #8eb; }
+    .slot .sub { margin-top: 4px; opacity: 0.75; font-weight: 600; }
+
+    .floor {
+      position: absolute;
+      inset: 306px 0 0;
+    }
+
+    .desk {
+      position: absolute;
+      width: calc(140px * var(--scale));
+      z-index: 1;
+    }
+    .desk:hover { z-index: 5; }
+    .desk.pick .who { outline: 2px solid var(--amber); background: #f3e0b8; }
+    .desk.litseat .who { outline: 2px solid #2f6f8a; }
+    .who { cursor: pointer; }
+    .desk.in { animation: deskin 0.45s ease; }
+    @keyframes deskin { from { transform: scale(0.7); opacity: 0; } }
+    .desk .top {
+      height: calc(36px * var(--scale));
+      background: var(--wood);
+      border-radius: 2px;
+      position: relative;
+    }
+    .desk:after {
+      content: "";
+      position: absolute;
+      left: 12%;
+      right: 10%;
+      bottom: -7px;
+      height: 11px;
+      background: rgba(42, 36, 32, 0.32);
+      border-radius: 50%;
+      filter: blur(3px);
+      z-index: 0;
+      pointer-events: none;
+    }
+    .desk.vacant .who { opacity: 0.35; }
+    .desk.vacant .top { filter: grayscale(0.25) brightness(0.92); }
+    .desk.asking .screen,
+    .screen.live {
+      box-shadow: 0 0 14px #e09a32aa;
+    }
+    .screen {
+      position: absolute;
+      left: 2px;
+      top: calc(-88px * var(--scale));
+      width: calc(128px * var(--scale));
+      height: calc(86px * var(--scale));
+      background: rgba(20, 19, 17, 0.22);
+      border: 2px solid rgba(17, 17, 17, 0.4);
+      color: #cfc4b0;
+      font-size: calc(8px * var(--scale));
+      line-height: 1.1;
+      padding: calc(3px * var(--scale)) calc(5px * var(--scale));
+      overflow: hidden;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      gap: calc(2px * var(--scale));
+    }
+    .screen.on { color: #f3ead8; cursor: pointer; }
+    .screen.on:hover, .screen.live { outline: 2px solid var(--amber); }
+    .screen.off { opacity: 0.4; }
+    .screen .head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 4px;
+      flex: 0 0 auto;
+      min-width: 0;
+    }
+    .screen .ttl {
+      font-size: calc(8px * var(--scale));
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      opacity: 0.7;
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 0 0 auto;
+      min-width: 0;
+    }
+    .screen .head .ttl { flex: 1 1 auto; }
+    .screen .ttl span {
+      cursor: pointer;
+      opacity: 0.4;
+      margin-right: 5px;
+    }
+    .screen .ttl span:hover { opacity: 0.85; }
+    .screen .ttl span.on { opacity: 1; color: var(--amber); }
+    .screen .num {
+      font-size: calc(13px * var(--scale));
+      font-weight: 800;
+      color: var(--amber);
+      letter-spacing: -0.03em;
+      line-height: 1;
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+    .screen .num.down { color: #e07060; }
+    .spark { display: block; width: 100%; flex: 1 1 0; min-height: 16px; height: auto; margin: 0; }
+    .spark .dip { fill: none; stroke: #e07060; stroke-width: 2; }
+    .spark .dot { fill: #cfc4b0; }
+    .spark .dot.on { fill: var(--amber); }
+    .days {
+      display: flex;
+      justify-content: space-between;
+      gap: 2px;
+      font-size: calc(7px * var(--scale));
+      line-height: 1.1;
+      opacity: 0.7;
+      flex: 0 0 auto;
+      min-width: 0;
+    }
+    .days span {
+      cursor: pointer;
+      padding: 0;
+      opacity: 0.45;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
+    .days span:hover { opacity: 1; }
+    .days span.on { opacity: 1; color: var(--amber); font-weight: 800; }
+    .countries {
+      display: flex;
+      align-items: stretch;
+      gap: 4px;
+      flex: 1 1 0;
+      min-height: 0;
+      margin: 0;
+    }
+    .countries div {
+      flex: 1;
+      min-width: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+      cursor: pointer;
+    }
+    .countries div:hover i { filter: brightness(1.25); }
+    .countries .grow {
+      flex: 1 1 0;
+      min-height: 8px;
+      display: flex;
+      align-items: flex-end;
+    }
+    .countries i {
+      display: block;
+      background: #6a8;
+      width: 100%;
+      min-height: 4px;
+      transition: height 0.45s ease;
+    }
+    .countries .on i { background: var(--amber); }
+    .countries u, .countries em {
+      display: block;
+      flex: 0 0 auto;
+      font-size: calc(7px * var(--scale));
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .countries u { text-decoration: none; opacity: 0.7; }
+    .countries em { font-style: normal; font-weight: 800; }
+    .tix {
+      display: flex;
+      gap: 4px;
+      align-items: flex-end;
+      flex: 1 1 0;
+      min-height: 0;
+      height: auto;
+      margin: 0;
+    }
+    .tix b {
+      flex: 1;
+      display: block;
+      min-height: 5px;
+      cursor: pointer;
+      transition: height 0.45s ease;
+    }
+    .tix b:hover { outline: 1px solid #e09a32; }
+    .tix .p1 { background: #d24a32; }
+    .tix .p2 { background: #e09a32; }
+    .tix .p3 { background: #6a8; }
+    .tix .on { box-shadow: 0 0 0 1px #fff; }
+    .ads {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1 1 0;
+      min-height: 0;
+      margin: 0;
+    }
+    .ads > div { min-width: 0; cursor: pointer; }
+    .ads > div:hover { outline: 1px solid #e09a32; }
+    .ads span {
+      display: block;
+      font-size: calc(7px * var(--scale));
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ads i {
+      display: block;
+      height: 7px;
+      background: #4a7;
+      margin-top: 2px;
+      transition: width 0.45s ease;
+    }
+    .ads .on i { background: var(--amber); }
+    .pkgs { display: flex; flex-wrap: wrap; gap: 3px; flex: 1 1 0; min-height: 0; margin: 0; cursor: pointer; }
+    .pkgs:hover { outline: 1px solid #e09a32; }
+    .pkgs i { width: 12px; height: 10px; background: #8a6a40; display: block; border: 1px solid #c4a06a; }
+    .pkgs i.go { background: #3d7a38; border-color: #8c8; }
+    .pkgs.old i { opacity: 0.35; }
+    .chat {
+      flex: 1 1 0;
+      min-height: 0;
+      overflow: hidden;
+      margin: 0;
+    }
+    .chat p {
+      margin: 2px 0 0;
+      background: rgba(42, 50, 48, 0.35);
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-size: calc(7px * var(--scale));
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+    }
+    .chat p:hover, .chat p.on { outline: 1px solid var(--amber); }
+    .grid3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 2px;
+      flex: 1 1 0;
+      min-height: 0;
+      overflow: hidden;
+      margin: 0;
+      font-size: calc(6px * var(--scale));
+      cursor: pointer;
+    }
+    .grid3 span {
+      background: rgba(42, 38, 32, 0.35);
+      padding: 1px 2px;
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .grid3:hover, .grid3.on span { outline: 1px solid #e09a3288; }
+    .grid3 .rowhit:hover span { background: #3a3420; }
+    .who {
+      position: absolute;
+      left: 4px;
+      bottom: 4px;
+      z-index: 2;
+      max-width: calc(100% - 78px);
+      font-size: calc(10px * var(--scale));
+      font-weight: 800;
+      margin: 0;
+      border: 0;
+      background: none;
+      padding: 0;
+      color: inherit;
+      font-family: inherit;
+      text-align: left;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .who span { font-weight: 600; opacity: 0.65; }
+    .stack {
+      position: absolute;
+      right: 3px;
+      top: 3px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
+      width: 72px;
+      justify-content: flex-end;
+      z-index: 5;
+    }
+    .card {
+      width: 14px;
+      height: 18px;
+      background: #f3eadc;
+      border: 2px solid #2a2420;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 7px;
+      font-weight: 800;
+      line-height: 1.2;
+      padding: 0;
+      color: inherit;
+    }
+    .card.bill { border-color: var(--coral); background: #f3d8d0; }
+    .card.pale { border-color: #8a5a10; background: var(--amber); }
+    .card.lit { outline: 2px solid var(--coral); transform: translateY(-3px); }
+    .card.dim { opacity: 0.22; }
+    .card.fresh { animation: cardin 0.4s ease; }
+    @keyframes cardin { from { transform: translateY(-14px); opacity: 0; } }
+    .card.open {
+      width: 128px;
+      height: auto;
+      min-height: 52px;
+      padding: 4px 5px;
+      text-align: left;
+      position: absolute;
+      right: 0;
+      top: 0;
+      z-index: 9;
+    }
+    .card.open b { display: block; font-size: 8px; }
+    .card.open em {
+      display: block;
+      font-style: normal;
+      font-size: 7px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      opacity: 0.65;
+      margin: 2px 0;
+    }
+    .card.open .sql {
+      display: block;
+      font: 7px/1.25 ui-monospace, Menlo, monospace;
+      margin: 2px 0;
+    }
+    .card.open .pay { font-size: 10px; font-weight: 800; }
+    .card.open .pay.bill { color: var(--coral); }
+    .more {
+      font-size: 8px;
+      font-weight: 800;
+      align-self: flex-end;
+    }
+    .person {
+      position: absolute;
+      width: 40px;
+      height: 58px;
+      margin-left: -20px;
+      margin-top: -52px;
+      z-index: 20;
+      pointer-events: none;
+      transform: scale(var(--scale));
+      transform-origin: 50% 100%;
+    }
+    .person .shadow {
+      position: absolute;
+      left: 6px;
+      bottom: 1px;
+      width: 20px;
+      height: 5px;
+      background: #2a242044;
+      border-radius: 50%;
+    }
+    .person .body {
+      transform-origin: 50% 100%;
+      display: block;
+    }
+    .person svg { display: block; overflow: visible; }
+    .person.sit { opacity: 0.4; }
+    .person.ask { z-index: 22; }
+    .say {
+      position: absolute;
+      left: 50%;
+      bottom: 56px;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 4;
+      pointer-events: none;
+    }
+    .cloud {
+      position: relative;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid var(--ink);
+      display: grid;
+      place-items: center;
+      animation: popcloud 0.34s cubic-bezier(0.2, 1.4, 0.4, 1);
+    }
+    .cloud .emo {
+      font-size: 15px;
+      line-height: 1;
+    }
+    .cloud .puff {
+      position: absolute;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid var(--ink);
+    }
+    .cloud .puff.a {
+      width: 8px;
+      height: 8px;
+      left: 3px;
+      bottom: -6px;
+    }
+    .cloud .puff.b {
+      width: 5px;
+      height: 5px;
+      left: -1px;
+      bottom: -11px;
+    }
+    .cloud.worry { box-shadow: 0 0 0 2px #e09a3255; }
+    .cloud.alarm { box-shadow: 0 0 0 2px #c44b3255; }
+    .cloud.check { box-shadow: 0 0 0 2px #2f6f8a44; }
+    .cloud.follow { box-shadow: 0 0 0 2px #8a7a6044; }
+    .cloud.sent { opacity: 0.28; }
+    .cloud.held { border-style: dashed; }
+    .person .askline {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%) scale(calc(1 / var(--scale, 1)));
+      transform-origin: top center;
+      margin: 2px 0 0;
+      width: max-content;
+      max-width: 140px;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.25;
+      text-align: center;
+      color: #fff;
+      -webkit-text-stroke: 0.45px #1a1410;
+      text-shadow:
+        0 0 3px #1a1410,
+        0 1px 2px #1a1410,
+        0 2px 8px #1a1410;
+    }
+    .askline em {
+      display: block;
+      margin-top: 1px;
+      font-style: normal;
+      font-size: 10px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      opacity: 0.9;
+    }
+    @keyframes popcloud {
+      from { transform: scale(0.15); opacity: 0; }
+      72% { transform: scale(1.14); }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .capboard {
+      margin-left: auto;
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      min-width: 0;
+      max-width: 620px;
+      background: #f3eadc;
+      color: #2a2420;
+      border: 2px solid #1a2024;
+      padding: 0;
+      font-size: 10px;
+      flex-shrink: 1;
+    }
+    .run {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      min-width: 0;
+    }
+    .run.gzside {
+      border-left: 2px solid #2a2420;
+      background: #e4eef2;
+    }
+    .run .amt {
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .run.wh .amt { color: var(--coral); }
+    .run.gzside .amt { color: #2f6f8a; }
+    .jar {
+      width: 58px;
+      height: 68px;
+      border: 3px solid #1a2024;
+      background: #e8dcc8;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+      flex-shrink: 0;
+      padding: 0;
+      color: inherit;
+      font: inherit;
+    }
+    .jar .fill {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #6a8;
+    }
+    .jar.warn .fill { background: #e09a32; }
+    .jar.dead .fill { background: var(--coral); }
+    .jar.gz .fill { background: #2f6f8a; }
+    .jar.lit { outline: 3px solid var(--coral); }
+    .jar .m75, .jar .m90 {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #2a2420;
+    }
+    .jar .m75 { bottom: 75%; }
+    .jar .m90 { bottom: 90%; }
+    .jar b, .jar u {
+      position: relative;
+      z-index: 1;
+      display: block;
+      text-align: center;
+      font-style: normal;
+      text-decoration: none;
+    }
+    .jar b { font-size: 10px; font-weight: 800; margin-top: 18px; }
+    .jar u { font-size: 8px; opacity: 0.65; }
+    .capboard .sold {
+      font-size: 16px;
+      font-weight: 800;
+      color: #8a5a10;
+    }
+    .capboard.warn { border-color: #c47a32; }
+    .capboard.dead { border-color: var(--coral); background: #f3d8d0; }
+    .capboard .k {
+      font-size: 8px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      opacity: 0.55;
+    }
+    .capboard .big {
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .capboard .big em { font-style: normal; color: #7a7068; font-size: 11px; font-weight: 700; }
+    .tank {
+      height: 10px;
+      width: 88px;
+      flex-shrink: 0;
+      background: #e0d4c2;
+      border: 1px solid #2a2420;
+      margin: 0;
+      position: relative;
+    }
+    .tank i {
+      display: block;
+      height: 100%;
+      background: #6a8;
+    }
+    .capboard.warn .tank i { background: #e09a32; }
+    .capboard.dead .tank i { background: var(--coral); }
+    .tank .m75, .tank .m90 {
+      position: absolute;
+      top: -2px;
+      bottom: -2px;
+      width: 2px;
+      background: #2a2420;
+    }
+    .tank .m75 { left: 75%; }
+    .tank .m90 { left: 90%; }
+    .capboard .k, .capboard .big { white-space: nowrap; }
+    .slot.locked { position: relative; }
+    .slot.locked:after {
+      content: "CAPPED — GMV only";
+      position: absolute;
+      inset: 0;
+      background: rgba(40, 16, 12, 0.72);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      text-align: center;
+      padding: 8px;
+    }
+
+    .pkt {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      margin: -5px;
+      border-radius: 50%;
+      background: var(--coral);
+      border: 2px solid #fff;
+      z-index: 8;
+      pointer-events: none;
+    }
+    .pkt.pale { background: var(--amber); }
+    .pkt.named {
+      width: auto;
+      height: auto;
+      margin: 0;
+      border-radius: 8px;
+      padding: 2px 6px;
+      font-size: 8px;
+      font-weight: 800;
+      white-space: nowrap;
+      color: var(--ink);
+      transform-origin: center;
+    }
+    .pkt.signal {
+      background: #fff;
+      border-style: dashed;
+    }
+    .pkt.tag {
+      background: var(--amber);
+      border-style: solid;
+    }
+    .pkt.glow {
+      box-shadow: 0 0 8px #e09a32, 0 0 18px #e09a3266;
+    }
+    .pkt.result-pkt {
+      background: #f3eadc;
+      border-color: #2a2420;
+      box-shadow: 0 0 10px #8ec8e0;
+    }
+    .pkt.giz-route, .pkt.giz-route.tag {
+      background: #8ec8e0;
+      border-color: #2f6f8a;
+      box-shadow: 0 0 10px #2f6f8a;
+    }
+    .pkt.named.emo-pkt {
+      width: 28px;
+      height: 28px;
+      margin: -14px;
+      padding: 0;
+      border-radius: 50%;
+      background: #fff;
+      font-size: 15px;
+      display: grid;
+      place-items: center;
+      white-space: nowrap;
+    }
+    .cache-rack {
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 2px;
+      min-height: 22px;
+      margin-top: 3px;
+    }
+    .rcard {
+      display: block;
+      background: #f3eadc;
+      color: #2a2420;
+      border: 1px solid #8a7a60;
+      font-size: 7px;
+      font-weight: 800;
+      padding: 1px 3px;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .rcard.match, .rcard.flash {
+      background: var(--amber);
+      border-color: #fff;
+      box-shadow: 0 0 8px #e09a32;
+      animation: cardflash 0.45s ease;
+    }
+    .rcard.fresh { animation: cardin 0.4s ease; }
+    .cache-rack.scan .rcard { animation: scanpulse 0.55s ease; }
+    .cache-rack.scan .rcard:nth-child(2) { animation-delay: 0.08s; }
+    .cache-rack.scan .rcard:nth-child(3) { animation-delay: 0.16s; }
+    .cache-rack.scan .rcard:nth-child(4) { animation-delay: 0.24s; }
+    @keyframes scanpulse {
+      50% { filter: brightness(1.45); transform: translateX(2px); }
+    }
+    @keyframes cardflash {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.12); }
+      100% { transform: scale(1); }
+    }
+    .cmp .stamp {
+      display: none;
+      position: absolute;
+      inset: 0;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      background: #1a2228ee;
+    }
+    .cmp.flash-match .stamp.match,
+    .cmp.flash-miss .stamp.miss { display: flex; }
+    .cmp.flash-match .stamp.match { color: var(--amber); }
+    .cmp.flash-miss .stamp.miss { color: #8eb; }
+    .plant {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .bay.miss .plant { opacity: 0.35; filter: grayscale(0.6); }
+    .bay.work .plant { opacity: 1; filter: none; }
+    .tickdol {
+      font-size: 9px;
+      font-weight: 800;
+      color: #8aa;
+      min-height: 12px;
+    }
+    .bay.work .tickdol { color: #f3b2a4; animation: tankpulse 0.6s ease infinite; }
+    .bay[data-unit=compute],
+    .bay[data-unit=slice],
+    .bay[data-unit=cache] { cursor: pointer; }
+    .cstrip {
+      display: flex;
+      gap: 2px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 3px;
+    }
+    .cdot {
+      font-size: 6px;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      padding: 1px 3px;
+      border: 1px solid #4a5a60;
+      color: #8aa;
+      opacity: 0.4;
+    }
+    .cdot.on { opacity: 1; color: #cfe; border-color: #6af; }
+    .cdot.now { background: #1a3a50; color: #fff; box-shadow: 0 0 6px #66aaff; }
+    .bay.hit .cdot.on { border-color: var(--amber); color: var(--amber); }
+    .cwalk {
+      display: none;
+      margin-top: 5px;
+      padding: 5px 6px;
+      background: #12181c;
+      border: 2px solid #2a3840;
+    }
+    .cwalk.show { display: block; }
+    .crow {
+      display: grid;
+      grid-template-columns: 58px 1fr 1fr 1fr 1fr;
+      gap: 4px;
+      align-items: stretch;
+      margin-top: 4px;
+    }
+    .crow:first-of-type { margin-top: 0; }
+    .crow > b {
+      font-size: 8px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding-top: 5px;
+      color: #8ec8e0;
+    }
+    .crow[data-kind=wh] > b { color: #e09a32; }
+    .cstep {
+      display: block;
+      background: #1a2228;
+      border: 1px solid #2a3840;
+      padding: 3px 4px;
+      min-width: 0;
+    }
+    .cstep em {
+      display: block;
+      font-size: 7px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      opacity: 0.55;
+      font-style: normal;
+      font-weight: 800;
+    }
+    .cstep i {
+      display: block;
+      font-size: 9px;
+      font-style: normal;
+      font-weight: 700;
+      color: #d8e4e8;
+      margin-top: 2px;
+      word-break: break-word;
+    }
+    .cstep.on { border-color: #6af; }
+    .cstep.now { background: #1a3a50; border-color: #8eb; }
+    .cstep.skip i { color: #8aa; }
+    .floor {
+      background:
+        radial-gradient(ellipse 70% 42% at 50% 0%, rgba(255, 230, 180, 0.28) 0%, transparent 72%),
+        radial-gradient(ellipse 24% 20% at 16% 62%, rgba(58, 30, 10, 0.16) 0%, transparent 72%),
+        radial-gradient(ellipse 20% 16% at 70% 48%, rgba(72, 40, 14, 0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 30% 22% at 48% 88%, rgba(42, 22, 8, 0.14) 0%, transparent 74%),
+        radial-gradient(ellipse 16% 14% at 38% 36%, rgba(86, 48, 18, 0.09) 0%, transparent 68%),
+        var(--carpet);
+    }
+    .cable.busy {
+      box-shadow: 0 0 8px #e09a3266;
+    }
+    .cable.busy:after {
+      content: "";
+      position: absolute;
+      left: -2px;
+      top: 0;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--amber);
+      box-shadow: 0 0 8px #e09a32;
+      animation: cablehum 1.1s linear infinite;
+    }
+    @keyframes cablehum {
+      to { transform: translateY(8px); opacity: 0.2; }
+    }
+    .office.reroute .gbox b { animation: pathswap 0.7s ease; box-shadow: 0 0 0 3px #8ec8e0; }
+    .office.reroute .wharf { opacity: 0.72; }
+    .gbox.livepath b { box-shadow: 0 0 0 2px #8ec8e0, 0 0 12px #2f6f8aaa; }
+
+    .ledger {
+      flex: 0.84;
+      margin: 0;
+      background:
+        repeating-linear-gradient(#00000008 0 1px, transparent 1px 28px),
+        linear-gradient(#fff8e6, var(--paper));
+      border: 6px solid #6a5340;
+      border-left: 10px dotted #c4b090;
+      box-shadow: inset 0 0 0 1px #e8d9b8;
+      display: flex;
+      flex-direction: column;
+      min-width: 256px;
+      max-width: 448px;
+      min-height: 0;
+      overflow: auto;
+    }
+    .ledger h2 {
+      margin: 0;
+      padding: 10px 12px 2px;
+      font-size: 14px;
+    }
+    .ledger .why {
+      padding: 0 12px 8px;
+      font-size: 11px;
+      color: #5a5048;
+    }
+    .compare {
+      padding: 0 12px 8px;
+      flex: 0 0 auto;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .soldbig {
+      background: #fff;
+      border: 3px solid #111;
+      padding: 12px 12px 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      min-width: 0;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+    .soldbig .k { font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.55; font-weight: 800; }
+    .soldbig .n { font-size: 36px; font-weight: 800; line-height: 1; color: #8a5a10; margin-top: 4px; }
+    .soldbig .sub { font-size: 13px; margin-top: 6px; font-weight: 700; }
+    .soldbig .ba {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .soldbig .ba > div { min-width: 0; }
+    .soldbig .ba em {
+      display: block;
+      font-style: normal;
+      font-size: 9px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      opacity: 0.55;
+      font-weight: 800;
+    }
+    .soldbig .ba .n { font-size: 26px; margin-top: 2px; }
+    .soldbig .ba .after .n { color: #2f6f8a; }
+    .soldbig .ba .sub { font-size: 11px; margin-top: 4px; font-weight: 700; }
+    .soldbig .gizcmp {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 2px solid #e4d8c4;
+    }
+    .soldbig .extra {
+      color: #2f6f8a;
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .yearbar {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    .mblock {
+      border: 2px solid #2a2420;
+      background: #fff;
+      height: 64px;
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .mblock.empty { opacity: 0.35; }
+    .mblock.now { outline: 2px solid var(--amber); }
+    .mblock.on { border-color: #111; box-shadow: 0 0 0 2px #111; }
+    .mblock .fills {
+      position: absolute;
+      left: 2px;
+      right: 2px;
+      top: 4px;
+      bottom: 16px;
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+    }
+    .mblock .sf, .mblock .gz {
+      flex: 1;
+      display: block;
+      background: var(--coral);
+      min-height: 0;
+    }
+    .mblock .gz { background: #2f6f8a; }
+    .mblock em {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 2px;
+      font-style: normal;
+      font-size: 8px;
+      font-weight: 800;
+      text-align: center;
+    }
+    .weekpeek { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 8px; }
+    .weekpeek .mblock { height: 48px; }
+    .seatcard {
+      background: #fff;
+      border: 2px solid #2a2420;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+    }
+    .seatcard b { display: block; font-size: 16px; }
+    .monthbook {
+      display: none;
+    }
+    .mrow {
+      display: grid;
+      grid-template-columns: 56px 1fr 1fr 1fr;
+      gap: 4px;
+      padding: 4px 7px;
+      font-size: 12px;
+      align-items: center;
+      border-top: 1px solid #e4d8c4;
+    }
+    .mrow.head {
+      font-size: 8px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      opacity: 0.55;
+      font-weight: 800;
+      border-top: 0;
+      border-bottom: 1px solid #d4c8b4;
+      background: #fff;
+    }
+    .mrow.now { background: #f3e0b8; }
+    .mrow.mute { opacity: 0.38; }
+    .mrow .pay { color: var(--coral); font-weight: 800; }
+    .mrow .gz { color: #2f6f8a; font-weight: 800; }
+    .mrow .ok { color: #2d6a32; font-weight: 800; }
+    .mrow .proj, .yeartot .proj { opacity: 0.4; }
+    .mrow em { display: block; font-style: normal; font-size: 8px; opacity: 0.65; }
+    .yeartot {
+      display: grid;
+      grid-template-columns: 56px 1fr 1fr 1fr;
+      gap: 4px;
+      padding: 6px 7px 8px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .yeartot .pay { color: var(--coral); }
+    .yeartot .gz { color: #2f6f8a; }
+    .yeartot .ok { color: #2d6a32; }
+    .yeartot .mute { opacity: 0.4; }
+    .mrow > *,
+    .yeartot > * {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+    .weeknow {
+      margin: 0 0 8px;
+      border: 2px solid #2a2420;
+      background: #fff;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .weeknow .k {
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      opacity: 0.55;
+      font-weight: 800;
+      padding: 8px 8px 2px;
+    }
+    .weeknow .hint {
+      font-size: 11px;
+      font-weight: 700;
+      color: #5a5048;
+      padding: 0 8px 6px;
+    }
+    .weeknow .mrow { padding: 3px 7px; font-size: 11px; }
+    .weeks { border: 2px solid #2a2420; background: #fff; }
+    .wrow {
+      display: grid;
+      grid-template-columns: 52px 44px 1fr 1fr 64px;
+      gap: 4px;
+      padding: 6px 8px;
+      font-size: 11px;
+      align-items: start;
+    }
+    .wrow.head {
+      font-size: 8px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      opacity: 0.55;
+      font-weight: 800;
+      border-bottom: 1px solid #d4c8b4;
+    }
+    .wrow.now { background: #f3e0b8; }
+    .wrow .pay { color: var(--coral); font-weight: 800; }
+    .wrow .gz { color: #2f6f8a; font-weight: 800; }
+    .wrow .mute { opacity: 0.45; font-weight: 600; }
+    .wrow .ok { color: #2d6a32; font-weight: 800; }
+    .wrow em { display: block; font-style: normal; font-size: 8px; font-weight: 600; opacity: 0.65; }
+    .seats { margin-top: 6px; }
+    .seatstrip {
+      max-height: 168px;
+      overflow-y: auto;
+      border: 2px solid #2a2420;
+      background: #fff;
+      margin-bottom: 8px;
+    }
+    .seatstrip .wrow {
+      grid-template-columns: 1fr 28px 44px;
+      padding: 2px 6px;
+      font-size: 10px;
+      gap: 4px;
+    }
+    .seatstrip .wrow.head { font-size: 7px; padding: 2px 6px; }
+    .seatstrip .wrow.tot { font-weight: 800; border-top: 1px solid #d4c8b4; }
+    .steers { margin-bottom: 8px; }
+    .steerbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 2px solid #2a2420;
+      background: #fff;
+      margin-bottom: 4px;
+      padding: 5px 6px;
+    }
+    .steers .steerbar:last-child { margin-bottom: 0; }
+    .steerbar.warn { background: #f3e0b8; }
+    .steerbar.dead { background: #f3d8d0; }
+    .steer {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      flex: 0 0 auto;
+      border: 2px solid #2a2420;
+      background: #f6eed8;
+      font-weight: 800;
+      font-size: 18px;
+      line-height: 1;
+    }
+    .steer:disabled { opacity: 0.35; cursor: default; }
+    .steer-read {
+      flex: 1;
+      min-width: 0;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+    .steer-read em {
+      display: block;
+      font-style: normal;
+      font-size: 9px;
+      font-weight: 700;
+      opacity: 0.6;
+    }
+    .throttle {
+      margin-top: 8px;
+      padding: 6px 8px;
+      font-weight: 800;
+      font-size: 12px;
+      border: 2px solid #2a2420;
+    }
+    .throttle.warn { background: #f3e0b8; }
+    .throttle.dead { background: #f3d8d0; color: var(--coral); }
+    .col {
+      background: #fff;
+      border: 2px solid #2a2420;
+      padding: 8px 9px 9px;
+    }
+    .col.gzside { border-color: #2f6f8a; }
+    .col h3 {
+      margin: 0 0 2px;
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      opacity: 0.6;
+    }
+    .col .big { font-size: 28px; font-weight: 800; line-height: 1.1; }
+    .col .big.pay { color: var(--coral); }
+    .col .big.gz { color: #2f6f8a; }
+    .col p { margin: 5px 0 0; font-size: 11px; line-height: 1.35; }
+    .col .grow {
+      height: 8px;
+      background: #e8dcc8;
+      margin-top: 7px;
+    }
+    .col .grow i {
+      display: block;
+      height: 100%;
+      background: var(--coral);
+      transition: width 0.35s ease;
+    }
+    .col.gzside .grow i { background: #2f6f8a; }
+    .talk {
+      margin: 0 12px 8px;
+      padding: 0;
+      background: #fff;
+      border: 2px solid #2a2420;
+      font-size: 11px;
+      flex: 1 1 auto;
+      min-height: 140px;
+      overflow-y: auto;
+    }
+    .talk .chan {
+      position: sticky;
+      top: 0;
+      padding: 5px 8px;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: #f3eadc;
+      border-bottom: 1px solid #d4c8b4;
+      z-index: 1;
+    }
+    .tick {
+      padding: 6px 8px 7px;
+      border-top: 1px solid #eee6d6;
+    }
+    .tick .from {
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .tick time {
+      font-size: 9px;
+      font-weight: 700;
+      opacity: 0.45;
+      margin-left: 6px;
+    }
+    .tick p { margin: 2px 0 0; font-weight: 600; overflow-wrap: anywhere; }
+    .talk.split-talk {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      overflow: hidden;
+    }
+    .talk-pane {
+      min-width: 0;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      border-right: 1px solid #d4c8b4;
+    }
+    .talk-pane.giz { border-right: 0; }
+    .talk-pane .chan { position: sticky; top: 0; }
+    .impact:empty, .sum:empty { display: none; }
+    .impact {
+      margin: 0 12px 4px;
+      padding: 5px 8px;
+      background: #fff;
+      border: 2px solid #2a2420;
+      font-size: 11px;
+      flex: 0 0 auto;
+    }
+    .impact h3 {
+      margin: 0 0 6px;
+      font-size: 10px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      opacity: 0.55;
+    }
+    .impact .tank {
+      width: 100%;
+      height: 12px;
+      margin: 0 0 8px;
+    }
+    .impact li {
+      list-style: none;
+      margin: 0 0 5px;
+      padding-left: 0;
+    }
+    .impact ul { margin: 0; padding: 0; }
+    .impact .ok { color: #2d6a32; }
+    .impact .wait { color: #8a5a10; }
+    .impact .dead { color: var(--coral); }
+    .sum {
+      border-top: 2px solid #2a2420;
+      padding: 5px 12px 8px;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+    .sum .line { display: flex; justify-content: space-between; padding: 3px 0; }
+    .sum b { font-size: 16px; }
+    .sum .pay { color: var(--coral); }
+    .sum .gz { color: #2f6f8a; }
+    .hitflag {
+      background: var(--amber);
+      color: #2a2420;
+      font-weight: 800;
+      font-size: 9px;
+      padding: 2px 4px;
+      margin-bottom: 4px;
+    }
+
+    .hud {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      z-index: 30;
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: transparent;
+      color: #f3ead8;
+      pointer-events: none;
+    }
+    .hud .tiny { pointer-events: auto; }
+    .tiny {
+      border: 2px solid #111;
+      background: #f3ead8;
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 4px;
+    }
+    .tiny.on { background: var(--amber); }
+    .hud select {
+      border: 2px solid #111;
+      background: #f3ead8;
+      font-weight: 700;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .path {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 5px;
+      padding: 3px 8px 0;
+      font-weight: 800;
+      font-size: 11px;
+    }
+    .path.swap .node { animation: pathswap 0.7s ease; }
+    @keyframes pathswap {
+      0% { transform: translateY(8px); opacity: 0; }
+      100% { transform: none; opacity: 1; }
+    }
+    .node {
+      background: #1a2228;
+      border: 2px solid #8aa;
+      padding: 3px 7px;
+      border-radius: 6px;
+    }
+    .node.work { border-color: var(--amber); background: #3a3420; box-shadow: 0 0 0 2px #e09a3255; }
+    .node.hit { border-color: #8ec8e0; background: #1a2a38; }
+    .node.giz { border-color: #2f6f8a; color: #8ec8e0; }
+    .node.dim { opacity: 0.32; }
+    .path .arrow { opacity: 0.55; font-size: 14px; }
+
+    .wh-run {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 4px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .budget-banner .flash {
+      padding: 2px 6px;
+      border: 2px solid #5a7078;
+      background: #243038;
+      font-size: 10px;
+    }
+    .budget-banner .flash.on {
+      border-color: var(--amber);
+      background: #3a3420;
+      color: var(--amber);
+    }
+    .budget-banner .creds { font-variant-numeric: tabular-nums; font-size: 10px; }
+    .budget-banner .creds b { color: var(--amber); }
+
+    .install-banner {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      top: 8px;
+      z-index: 28;
+      background: #fff;
+      color: var(--ink);
+      border: 4px solid var(--coral);
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .install-banner p { margin: 0; font-weight: 800; font-size: 13px; }
+    .install-banner button {
+      border: 4px solid #111;
+      background: var(--amber);
+      font-weight: 800;
+      padding: 10px 14px;
+      flex-shrink: 0;
+    }
+
+    .bite-float {
+      position: absolute;
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--coral);
+      z-index: 14;
+      pointer-events: none;
+      white-space: nowrap;
+      animation: biteup 0.75s ease forwards;
+    }
+    @keyframes biteup {
+      to { transform: translateY(-22px); opacity: 0; }
+    }
+    .tank.bite i { outline: 2px solid #fff; }
+
+    .sizes {
+      display: flex;
+      gap: 3px;
+      margin-left: 6px;
+    }
+    .sizes button {
+      border: 2px solid #1a2024;
+      background: #c8cdd0;
+      color: #1a2024;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 3px 6px;
+      border-radius: 4px;
+    }
+    .sizes button.on { background: var(--amber); }
+
+    .say.gone { display: none; }
+    .person.slow .body { opacity: 0.85; }
+
+    .wh-run {
+      margin-top: 3px;
+      font-size: 10px;
+    }
+
+    @media (max-width: 720px), (max-height: 520px) and (max-width: 960px) {
+      html, body {
+        height: auto;
+        min-height: 100%;
+        min-height: 100dvh;
+        overflow: auto;
+        overflow-x: hidden;
+        overscroll-behavior-x: none;
+      }
+      #game {
+        height: auto;
+        min-height: 100dvh;
+        padding-bottom: 0;
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+      }
+      .main {
+        position: relative;
+        inset: auto;
+        flex-direction: column;
+        flex: none;
+      }
+      .ledger { padding-bottom: 56px; }
+      .office,
+      #office.offices {
+        flex: none;
+        width: auto;
+        min-width: 0;
+        min-height: 0;
+        margin: 0;
+        overflow: hidden;
+      }
+      .office {
+        --scale: 0.78;
+        border-width: 5px;
+      }
+      #office.offices {
+        flex-direction: column;
+        gap: 6px;
+      }
+      .office.split {
+        --scale: 0.7;
+        border-width: 4px;
+      }
+      .hvac {
+        border-bottom-width: 3px;
+      }
+      .engines {
+        flex-wrap: wrap;
+        gap: 4px;
+        padding: 4px 6px;
+      }
+      .engines > button,
+      .sizes button {
+        font-size: 9px;
+        padding: 4px 6px;
+      }
+      .sizes {
+        margin-left: 0;
+        flex-wrap: wrap;
+      }
+      .vs-bar {
+        font-size: 12px;
+        padding: 5px 8px;
+      }
+      .stage {
+        padding: 0 6px 4px;
+      }
+      .wharf {
+        width: 100%;
+        font-size: 8px;
+        padding: 5px 6px;
+      }
+      .wharf-head {
+        flex-direction: column;
+        align-items: stretch;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .wh-budget {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+      .wh-budget .amt { font-size: 12px; white-space: normal; }
+      .wh-budget .meter { width: 22px; height: 36px; flex-shrink: 0; }
+      .budget-banner {
+        font-size: 10px;
+        padding: 4px 6px;
+        gap: 6px;
+      }
+      .budget-banner .flash,
+      .budget-banner .creds { font-size: 9px; }
+      .cwalk .crow {
+        grid-template-columns: 1fr 1fr;
+      }
+      .cwalk .crow > b { grid-column: 1 / -1; padding-top: 2px; }
+      .pipe {
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+      }
+      .bay::before,
+      .cmp::before,
+      .bay[data-unit=inbox]::after { display: none; }
+      .bay { min-height: 44px; padding: 3px 4px; }
+      .runway {
+        height: auto;
+        min-height: 0;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        padding: 4px 6px;
+        gap: 4px;
+      }
+      .procs {
+        flex: 1 1 100%;
+        flex-wrap: wrap;
+        gap: 3px;
+      }
+      .ptab .tick { display: none; }
+      .ptab b { font-size: 7px; padding: 3px 6px; }
+      .agent b,
+      .gbox b { font-size: 9px; padding: 4px 8px; }
+      .floor {
+        position: relative;
+        inset: auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        justify-items: center;
+        align-content: start;
+        gap: 92px 8px;
+        padding: 88px 8px 108px;
+        min-height: 0;
+      }
+      .office.split .floor {
+        position: relative;
+        inset: auto;
+        min-height: 0;
+        padding-bottom: 96px;
+      }
+      .desk {
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+        width: min(148px, 46vw);
+      }
+      .cloud { width: 24px; height: 24px; }
+      .cloud .emo { font-size: 13px; }
+      .askline { font-size: 12px; max-width: min(160px, 48vw); }
+      .card.open {
+        width: min(120px, 68vw);
+        max-width: 68vw;
+      }
+      .slack,
+      .install-banner {
+        position: relative;
+        left: auto;
+        right: auto;
+        top: auto;
+        grid-column: 1 / -1;
+        justify-self: stretch;
+        order: -1;
+        padding: 10px;
+        max-height: none;
+        overflow: auto;
+        margin: 0 0 8px;
+      }
+      .slack b.stop { font-size: 15px; }
+      .slack button,
+      .install-banner button { padding: 8px; }
+      .install-banner {
+        flex-wrap: wrap;
+      }
+      .ledger {
+        flex: none;
+        max-width: none;
+        min-width: 0;
+        width: auto;
+        margin: 0;
+        overflow: visible;
+        border-width: 5px;
+        border-left-width: 8px;
+      }
+      .ledger h2 { padding: 10px 10px 2px; }
+      .ledger .why,
+      .compare { padding-left: 10px; padding-right: 10px; overflow-wrap: anywhere; }
+      .soldbig .sub,
+      .budget-banner { overflow-wrap: anywhere; }
+      .steer { width: 32px; height: 32px; }
+      .soldbig { padding: 10px; }
+      .soldbig .n { font-size: 28px; }
+      .soldbig .ba { grid-template-columns: 1fr; gap: 10px; }
+      .soldbig .ba .n { font-size: 22px; }
+      .vs-ledgers { grid-template-columns: 1fr; }
+      .yearbar { grid-template-columns: repeat(6, 1fr); }
+      .mrow,
+      .yeartot {
+        grid-template-columns: 36px 1fr 1fr 1fr;
+        font-size: 10px;
+        gap: 3px;
+        padding: 4px 6px;
+      }
+      .mrow.head { font-size: 7px; }
+      .wrow {
+        grid-template-columns: 1fr 32px 1fr 1fr 44px;
+        font-size: 10px;
+        gap: 3px;
+      }
+      .talk {
+        margin: 0 10px 8px;
+        min-height: 160px;
+        max-height: 220px;
+        flex: none;
+      }
+      .impact { margin-left: 10px; margin-right: 10px; }
+      .hud {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 50;
+        flex-wrap: wrap;
+        gap: 4px;
+        background: transparent;
+        padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+        padding-left: calc(10px + env(safe-area-inset-left));
+        padding-right: calc(10px + env(safe-area-inset-right));
+      }
+      .tiny,
+      .hud select {
+        font-size: 11px;
+        padding: 6px 8px;
+      }
+    }
+    @media (max-width: 720px) and (max-height: 500px), (max-height: 520px) and (max-width: 960px) {
+      #game {
+        padding-bottom: 0;
+        padding-top: calc(48px + env(safe-area-inset-top));
+      }
+      .hud {
+        top: 0;
+        bottom: auto;
+        padding-top: calc(6px + env(safe-area-inset-top));
+        padding-bottom: 6px;
+      }
+      .floor,
+      .office.split .floor {
+        gap: 72px 8px;
+        padding: 72px 8px 32px;
+      }
+      .bay { min-height: 32px; }
+      .budget-banner { font-size: 9px; padding: 3px 5px; }
+      .talk { max-height: 140px; min-height: 120px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="game">
+    <div class="main">
+      <div class="office" id="office"></div>
+      <aside class="ledger">
+        <h2 id="ledgerTitle">The invoices</h2>
+        <p class="why" id="ledgerWhy"></p>
+        <div class="compare" id="compare"></div>
+        <div class="talk" id="talk"></div>
+        <div class="impact" id="impact"></div>
+        <div class="sum" id="sum"></div>
+      </aside>
+    </div>
+    <div class="hud">
+      <button class="tiny" id="auto" type="button">Pause</button>
+      <button class="tiny" id="gizmo" type="button">INSTALL GIZMOSQL</button>
+      <button class="tiny" id="split" type="button">GizmoSQL v Snowflake</button>
+      <button class="tiny" id="reset" type="button">Reset</button>
+    </div>
+  </div>
+<script>
+(function () {
+  const WEEK_MS = 8000;
+  const WEEKS = 4;
+  const MONTHS = 12;
+  const TOTAL_WEEKS = WEEKS * MONTHS;
+  const MONTH_MS = WEEK_MS * WEEKS;
+  const YEAR_MS = MONTH_MS * MONTHS;
+  const WORK_HOURS = 176;
+  const SEAT_MO = 400;
+  const BUDGET = 3000;
+  const BUDGET_STEP = 1500;
+  const LICENSE_MO = 800;
+  const MACHINE_MO = 4 * 0.5 * WORK_HOURS;
+  const QUERY_SEC = 8;
+  const ASK_REV = 22;
+  const QUERIES_PER_ASK = 8;
+  const CHUNK = 85;
+  const COOL_MS = 2400;
+  const SIZES = [
+    { id: 0.5, label: "Small" },
+    { id: 1, label: "Large" },
+    { id: 2, label: "2XL" },
+  ];
+
+  const ENGINE_IDS = ["snowflake", "bigquery", "databricks", "redshift", "postgres"];
+  const ENGINE = {
+    snowflake: {
+      name: "Snowflake",
+      cache: true,
+      scan: 0,
+      suspendMin: 5,
+      minSec: 60,
+      hourly: 24,
+      why: "Large warehouse = 8 credits/hour. Enterprise us-east-1 list = $3/credit. High-scale follow-up SQL keeps it up. Same ask can hit the result cache: $0 compute.",
+    },
+    bigquery: {
+      name: "BigQuery",
+      cache: true,
+      scan: (8 / 1024) * 6.25,
+      suspendMin: 0,
+      minSec: 0,
+      hourly: 0,
+      why: "On-demand $6.25/TiB scanned. Each new statement is a new job (we assume 8 GiB). Identical SQL can use cached results: $0. No warehouse-hour clock.",
+    },
+    databricks: {
+      name: "Databricks",
+      cache: true,
+      scan: 0,
+      suspendMin: 5,
+      minSec: 120,
+      hourly: 18,
+      why: "SQL warehouse ~4 DBU/hour × $0.55/DBU (labeled). 2-minute minimum when it starts. Same SQL can use a result cache.",
+    },
+    redshift: {
+      name: "Redshift",
+      cache: true,
+      scan: 0,
+      suspendMin: 5,
+      minSec: 60,
+      hourly: 12,
+      why: "ra3.xlplus on-demand ≈ $1.09/hour. Pause/resume like a warehouse: a cold start bills a minute. Result cache for the same SQL.",
+    },
+    postgres: {
+      name: "Postgres",
+      cache: false,
+      scan: 0,
+      suspendMin: 5,
+      minSec: 60,
+      hourly: 0.5,
+      why: "Instance ≈ $0.50/hour. There is no Snowflake-style result cache. Every statement runs. $ is hours the instance is up, not per query.",
+    },
+  };
+
+  const Q = {
+    week: ["SELECT SUM(gmv)", "FROM orders", "WHERE week = current"],
+    mon: ["SELECT SUM(gmv)", "FROM orders", "WHERE week = current AND day = 'Mon'"],
+    tue: ["SELECT SUM(gmv)", "FROM orders", "WHERE week = current AND day = 'Tue'"],
+    wed: ["SELECT SUM(gmv)", "FROM orders", "WHERE week = current AND day = 'Wed'"],
+    thu: ["SELECT SUM(gmv)", "FROM orders", "WHERE week = current AND day = 'Thu'"],
+    fri: ["SELECT SUM(gmv)", "FROM orders", "WHERE week = current AND day = 'Fri'"],
+    us: ["SELECT SUM(gmv)", "FROM orders", "WHERE country = 'US' AND week = current"],
+    uk: ["SELECT SUM(gmv)", "FROM orders", "WHERE country = 'UK' AND week = current"],
+    de: ["SELECT SUM(gmv)", "FROM orders", "WHERE country = 'DE' AND week = current"],
+    tix: ["SELECT COUNT(*)", "FROM tickets", "WHERE week = current"],
+    sev: ["SELECT severity, COUNT(*)", "FROM tickets", "WHERE week = current"],
+    p1: ["SELECT COUNT(*)", "FROM tickets", "WHERE severity = 'P1' AND day = 'Thu'"],
+    ads: ["SELECT SUM(spend)", "FROM ads", "WHERE week = current"],
+    ch: ["SELECT channel, SUM(spend)", "FROM ads", "WHERE week = current"],
+    open: ["SELECT COUNT(*)", "FROM orders", "WHERE shipped = false AND week = current"],
+    last: ["SELECT COUNT(*)", "FROM orders", "WHERE week = last"],
+    rows: ["SELECT order_id, gmv, state", "FROM orders", "WHERE country = 'US' AND week = current"],
+  };
+  const PEOPLE = [
+    { name: "Ava", title: "Sales", dash: "GMV this week", mode: "refresh", sql: "gmv|week",
+      asks: [
+        { say: "Did we miss this week's number?", when: "this week", sql: "gmv|week", hit: "week", parts: Q.week },
+        { say: "Was Monday actually okay?", when: "Mon", sql: "gmv|mon", hit: "M", parts: Q.mon },
+        { say: "How bad was Thursday?", when: "Thu", sql: "gmv|thu", hit: "Th", parts: Q.thu },
+        { say: "Are we still behind for the week?", when: "this week", sql: "gmv|week", hit: "week", parts: Q.week },
+      ] },
+    { name: "Dev", title: "RevOps", dash: "GMV this week", mode: "refresh", sql: "gmv|week",
+      asks: [
+        { say: "What's this week's total right now?", when: "this week", sql: "gmv|week", hit: "week", parts: Q.week },
+        { say: "Did Tuesday keep up with the week?", when: "Tue", sql: "gmv|tue", hit: "T", parts: Q.tue },
+        { say: "Is Thursday still the dip?", when: "Thu", sql: "gmv|thu", hit: "Th", parts: Q.thu },
+        { say: "Can you check the week total again?", when: "this week", sql: "gmv|week", hit: "week", parts: Q.week },
+      ] },
+    { name: "Finn", title: "Exec", dash: "GMV this week", mode: "refresh", sql: "gmv|week",
+      asks: [
+        { say: "Are we down this week?", when: "this week", sql: "gmv|week", hit: "week", parts: Q.week },
+        { say: "What did Wednesday look like before it dropped?", when: "Wed", sql: "gmv|wed", hit: "W", parts: Q.wed },
+        { say: "What happened on Thursday?", when: "Thu", sql: "gmv|thu", hit: "Th", parts: Q.thu },
+        { say: "Is the week still down?", when: "this week", sql: "gmv|week", hit: "week", parts: Q.week },
+      ] },
+    { name: "Ben", title: "Finance", dash: "GMV by country", mode: "explore",
+      asks: [
+        { say: "How much GMV came from the US this week?", when: "this week", sql: "gmv|US", hit: "US", parts: Q.us },
+        { say: "Is the US still carrying this week?", when: "this week", sql: "gmv|US", hit: "US", parts: Q.us },
+        { say: "What did the UK do this week?", when: "this week", sql: "gmv|UK", hit: "UK", parts: Q.uk },
+        { say: "What's the week total across every country?", when: "this week", sql: "gmv|week", hit: "week", parts: Q.week },
+      ] },
+    { name: "Cara", title: "CS", dash: "Tickets vs GMV dip", mode: "explore",
+      asks: [
+        { say: "How many tickets came in this week?", when: "this week", sql: "tix|week", hit: "tix", parts: Q.tix },
+        { say: "Did tickets jump when GMV dropped?", when: "this week", sql: "tix|week", hit: "tix", parts: Q.tix },
+        { say: "What's the severity split this week?", when: "this week", sql: "tix|sev", hit: "sev", parts: Q.sev },
+        { say: "How many P1s landed on Thursday?", when: "Thu", sql: "tix|p1", hit: "p1", parts: Q.p1 },
+      ] },
+    { name: "Elle", title: "Marketing", dash: "Ads that week", mode: "explore",
+      asks: [
+        { say: "How much did we spend on ads this week?", when: "this week", sql: "ads|week", hit: "ads", parts: Q.ads },
+        { say: "Is ad spend still in line this week?", when: "this week", sql: "ads|week", hit: "ads", parts: Q.ads },
+        { say: "How much of that was search?", when: "this week", sql: "ads|ch", hit: "search", parts: Q.ch },
+        { say: "And how much was email?", when: "this week", sql: "ads|ch", hit: "email", parts: Q.ch },
+      ] },
+    { name: "Gita", title: "Ops", dash: "Orders to ship", mode: "explore",
+      asks: [
+        { say: "How many orders are still open this week?", when: "this week", sql: "ord|open", hit: "open", parts: Q.open },
+        { say: "Are we going to miss ship dates this week?", when: "this week", sql: "ord|open", hit: "open", parts: Q.open },
+        { say: "How many sat open last week?", when: "last week", sql: "ord|last", hit: "last", parts: Q.last },
+        { say: "Were we this backed up last week too?", when: "last week", sql: "ord|last", hit: "last", parts: Q.last },
+      ] },
+    { name: "Hugo", title: "Support", dash: "Slack on GMV", mode: "explore",
+      asks: [
+        { say: "Why is GMV down this week?", when: "this week", sql: "gmv|week", hit: "week", parts: Q.week },
+        { say: "Is this the same week dip Sales is seeing?", when: "this week", sql: "gmv|week", hit: "week", parts: Q.week },
+        { say: "What happened on Thursday?", when: "Thu", sql: "gmv|thu", hit: "thu", parts: Q.thu },
+        { say: "Can I see the US order rows this week?", when: "this week", sql: "gmv|rows", hit: "rows", parts: Q.rows },
+      ] },
+  ];
+  const CORE = 3;
+
+  const SPOTS = [
+    { x: 4, y: 28 }, { x: 28, y: 28 }, { x: 52, y: 28 }, { x: 76, y: 28 },
+    { x: 4, y: 78 }, { x: 28, y: 78 }, { x: 52, y: 78 }, { x: 76, y: 78 },
+  ];
+  const PHONE_SPOTS = [
+    { x: 6, y: 16 }, { x: 54, y: 16 },
+    { x: 6, y: 39 }, { x: 54, y: 39 },
+    { x: 6, y: 62 }, { x: 54, y: 62 },
+    { x: 6, y: 85 }, { x: 54, y: 85 },
+  ];
+  const PHONE_MQ = "(max-width: 720px), (max-height: 520px) and (max-width: 960px)";
+  function onPhone() {
+    return window.matchMedia(PHONE_MQ).matches;
+  }
+  function spots() {
+    return onPhone() ? PHONE_SPOTS : SPOTS;
+  }
+
+  function money(n) {
+    const v = Math.max(0, n);
+    if (v < 0.5) return "$0";
+    return "$" + Math.round(v).toLocaleString();
+  }
+
+  function homeOf(i, office) {
+    if (onPhone() && office) {
+      const desk = office.querySelector('.desk[data-who="' + i + '"]');
+      const floor = office.querySelector(".floor");
+      if (desk && floor) {
+        const d = desk.getBoundingClientRect();
+        const f = floor.getBoundingClientRect();
+        if (f.width > 1 && f.height > 1) {
+          return {
+            x: ((d.left + d.width * 0.5) - f.left) / f.width * 100,
+            y: ((d.bottom - 2) - f.top) / f.height * 100,
+          };
+        }
+      }
+    }
+    const s = spots()[i];
+    return { x: s.x + 10, y: s.y + 6 };
+  }
+  function makeBody(i) {
+    const h = homeOf(i);
+    return {
+      x: h.x, y: h.y, tx: h.x, ty: h.y,
+      vx: 0, vy: 0,
+      gait: Math.random() * 8,
+      wait: 0.4 + Math.random() * 2.4,
+      mode: "idle",
+      face: 1,
+      faceN: 1,
+    };
+  }
+  function svgFig() {
+    return `<svg viewBox="0 0 40 56" width="40" height="56" fill="none" stroke="#000" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+      <g data-j="body">
+        <g data-j="head">
+          <circle cx="20" cy="7" r="5.4" fill="#000"/>
+        </g>
+        <path d="M20 12.4 V15"/>
+        <path d="M12 15.4 H28 L25.4 32.2 H14.6 Z" fill="#000"/>
+        <g data-j="armL">
+          <path d="M12 16.2 H4.8"/>
+          <path d="M4.8 16.2 v2.2"/>
+        </g>
+        <g data-j="armR">
+          <path d="M28 16.2 L34.2 22.4"/>
+          <path d="M34.2 22.4 v3.2"/>
+        </g>
+        <g data-j="legL">
+          <path d="M15.4 32.2 L12.2 48.4"/>
+          <path d="M12.2 48.4 H8"/>
+        </g>
+        <g data-j="legR">
+          <path d="M24.6 32.2 L28.2 48.4"/>
+          <path d="M28.2 48.4 H32.6"/>
+        </g>
+      </g>
+    </svg>`;
+  }
+  function setJ(root, name, deg, cx, cy) {
+    const el = root.querySelector('[data-j="' + name + '"]');
+    if (el) el.setAttribute("transform", "rotate(" + deg.toFixed(1) + " " + cx + " " + cy + ")");
+  }
+
+  function makeWorld(id, gizmo) {
+    return {
+      id,
+      gizmo: !!gizmo,
+      pulled: false,
+      duckSlice: "",
+      dollars: 0,
+      lastOn: -999,
+      cacheOn: false,
+      computeOn: false,
+      duckOn: false,
+      questions: 0,
+      lastWho: -1,
+      lastCacheKey: "",
+      dim: PEOPLE.map(() => 0),
+      focus: PEOPLE.map((p) => (p.sql === "gmv|week" ? -1 : 0)),
+      built: true,
+      open: CORE,
+      heldOpen: false,
+      opsMul: 1,
+      unlockIn: 0,
+      note: "",
+      noteFrom: "Data team",
+      restricted: false,
+      warn: false,
+      emergency: false,
+      budgetCut: null,
+      budgetMonth: 0,
+      log: [],
+      gizRuns: 0,
+      sqlParts: [],
+      cacheParts: [],
+      askChip: "",
+      cacheChip: "",
+      phase: "",
+      bodies: PEOPLE.map((_, i) => makeBody(i)),
+      cards: PEOPLE.map(() => []),
+      cardSeq: 0,
+      lastCard: 0,
+      openCard: null,
+      litTank: false,
+      held: null,
+      shadowOn: -999,
+      weeks: Array.from({ length: TOTAL_WEEKS }, emptyWeek),
+      seatBill: Array.from({ length: TOTAL_WEEKS }, emptySeatWeek),
+      gizOnMs: gizmo ? 0 : null,
+      openMonth: 0,
+      focusSeat: -1,
+      litSeats: false,
+      whSpend: 0,
+      credits: 0,
+      askAcc: 0,
+      aiRev: 0,
+      runSec: 0,
+      lastBite: 0,
+      lastFanout: 0,
+      whQueries: 0,
+      rearranging: false,
+      cacheStack: [],
+      walkVia: "",
+      walkLive: false,
+      walkOpen: false,
+      walkRow: 0,
+      walkStep: -1,
+      walkWho: -1,
+      tankFrom: 0,
+      budgetCap: BUDGET,
+      aiRevAtGiz: null,
+      questionsAtGiz: null,
+      seatRevAtGiz: null,
+      ticker: [
+        { t: "09:00", from: "RevOps", text: "GMV dipped this week. Sales keeps asking the analyst the same follow-ups." },
+        { t: "09:01", from: "Finance", text: "Those follow-ups are landing on Snowflake. Watch the warehouse cap." },
+      ],
+      tickKeys: { seed: true },
+    };
+  }
+  function emptyWeek() {
+    return { sf: 0, sfWould: 0, gz: 0, seats: 0, switched: false, asks: 0, misses: 0, asksWould: 0, missesWould: 0, qSf: 0, qWould: 0 };
+  }
+  function emptySeatWeek() {
+    return PEOPLE.map(() => ({ asks: 0, misses: 0 }));
+  }
+
+  function soldCount(w) {
+    return w.cards.reduce((n, s) => n + s.length, 0);
+  }
+  function worldOf(el) {
+    const site = el.closest("[data-world]") || document.getElementById("office");
+    return state.worlds.find((x) => x.id === (site.getAttribute("data-world") || "a"));
+  }
+  function recordCard(w, who, via, dollars) {
+    const a = currentAsk(who, w);
+    const billed = via === "warehouse" || via === "pull";
+    const card = {
+      id: ++w.cardSeq,
+      who,
+      ask: a.say,
+      when: a.when,
+      sql: a.sql,
+      parts: a.parts,
+      via,
+      dollars: dollars || 0,
+      billed,
+    };
+    w.cards[who].push(card);
+    w.lastCard = card.id;
+    return card;
+  }
+  function askFeel(ask) {
+    const s = ((ask && ask.say) || "").toLowerCase();
+    if (/p1|ship date|backed up/.test(s)) return { emo: "😰", kind: "alarm" };
+    if (/miss|bad|behind|down|dip|why |jump/.test(s)) return { emo: "😟", kind: "worry" };
+    if (/\bagain\b|still|same /.test(s)) return { emo: "😬", kind: "follow" };
+    if (/how much|how many|what'?s |what did|can i see/.test(s)) return { emo: "🤔", kind: "check" };
+    return { emo: "😮", kind: "ask" };
+  }
+  function cloudHTML(feel, extra) {
+    return `<div class="cloud ${feel.kind}${extra ? " " + extra : ""}"><span class="emo">${feel.emo}</span><i class="puff a"></i><i class="puff b"></i></div>`;
+  }
+  function heldHTML(h) {
+    const feel = askFeel(h);
+    return `<div class="say held">${cloudHTML(feel, "held")}</div><p class="askline">${h.say}<em>did not run</em></p>`;
+  }
+  function holdAsk(w, who) {
+    const p = PEOPLE[who];
+    const idx = chooseAsk(p, w.dim[who] || 0, w.lastCacheKey);
+    w.dim[who] = idx;
+    const a = p.asks[idx];
+    w.held = { who, say: a.say, when: a.when };
+  }
+  function stackHTML(w, i) {
+    const all = w.cards[i] || [];
+    const extra = Math.max(0, all.length - 8);
+    const shown = all.slice(-8);
+    const cards = shown.map((c) => {
+      const open = w.openCard && w.openCard.who === i && w.openCard.id === c.id;
+      const lit = w.litTank && c.billed;
+      const dim = w.litTank && !c.billed;
+      const fresh = c.id === w.lastCard;
+      const kind = c.billed ? "bill" : "pale";
+      if (open) {
+        return `<button type="button" class="card open ${kind}${lit ? " lit" : ""}" data-card="${c.id}" data-who="${i}">
+          <b>${c.ask}</b><em>${c.when}</em>
+          <span class="pay${c.billed ? " bill" : ""}">${c.billed ? money(c.dollars) : "$0"}</span>
+        </button>`;
+      }
+      return `<button type="button" class="card ${kind}${lit ? " lit" : ""}${dim ? " dim" : ""}${fresh ? " fresh" : ""}" data-card="${c.id}" data-who="${i}"></button>`;
+    }).join("");
+    return `<div class="stack">${extra ? `<span class="more">+${extra}</span>` : ""}${cards}</div>`;
+  }
+
+  const state = {
+    split: false,
+    auto: false,
+    playMs: 0,
+    simHours: 0,
+    lastTick: 0,
+    raf: 0,
+    askAcc: 0,
+    engine: "snowflake",
+    worlds: [makeWorld("a", false)],
+    flying: false,
+    clock: 9 * 60,
+    chartRaf: 0,
+    lastWeek: 0,
+    lastGizWeek: -1,
+    lastMonth: 0,
+    pausedForBudget: false,
+    askCool: 0,
+    whSize: 1,
+    pinTalk: false,
+  };
+
+  function eng() { return ENGINE[state.engine]; }
+  function weekIndex() {
+    return Math.min(TOTAL_WEEKS - 1, Math.floor(state.playMs / WEEK_MS));
+  }
+  function monthIndex() {
+    return Math.min(MONTHS - 1, Math.floor(weekIndex() / WEEKS));
+  }
+  function weekInMonth() { return weekIndex() % WEEKS; }
+  function monthFrac() {
+    const start = monthIndex() * MONTH_MS;
+    return Math.min(1, Math.max(0, (state.playMs - start) / MONTH_MS));
+  }
+  function frac() { return monthFrac(); }
+  function yearClosed() { return state.playMs >= YEAR_MS; }
+  function proj(d) { return d / Math.max(frac(), 0.05); }
+  function monthSlice(mo) {
+    const a = mo * WEEKS;
+    return [a, a + 1, a + 2, a + 3];
+  }
+  function sumKey(w, idxs, key) {
+    return idxs.reduce((n, i) => n + ((w.weeks[i] && w.weeks[i][key]) || 0), 0);
+  }
+  function monthSf(w, mo) { return sumKey(w, monthSlice(mo), "sf"); }
+  function monthGz(w, mo) { return sumKey(w, monthSlice(mo), "gz"); }
+  function clock() {
+    const m = Math.floor(state.clock);
+    const hh = String(Math.floor(m / 60) % 12 || 12).padStart(2, "0");
+    const mm = String(m % 60).padStart(2, "0");
+    return hh + ":" + mm;
+  }
+  function currentAsk(i, w) {
+    const p = PEOPLE[i];
+    return p.asks[(w.dim[i] || 0) % p.asks.length];
+  }
+  function sqlOf(i, w) { return currentAsk(i, w).sql; }
+  function labelOf(i, w) { return currentAsk(i, w).say; }
+  function sqlParts(i, w) { return currentAsk(i, w).parts; }
+  function chipLabel(a) {
+    if (a.hit === "US" || a.hit === "UK" || a.hit === "DE") return a.hit + " · " + a.when;
+    if (a.hit === "rows") return "US rows · " + a.when;
+    if (a.hit === "search" || a.hit === "email") return a.hit + " · " + a.when;
+    if (a.hit === "p1" || a.hit === "sev") return a.hit + " · " + a.when;
+    return a.when;
+  }
+  function pickForHit(p, hit) {
+    const same = p.asks.map((a, n) => (a.hit === hit ? n : -1)).filter((n) => n >= 0);
+    if (!same.length) return null;
+    return same[Math.floor(Math.random() * same.length)];
+  }
+  function chooseAsk(p, lastIdx, cacheKey) {
+    const idxs = p.asks.map((_, n) => n);
+    const lastSql = p.asks[lastIdx] ? p.asks[lastIdx].sql : "";
+    const sameSelf = idxs.filter((n) => p.asks[n].sql === lastSql);
+    const sameCache = cacheKey ? idxs.filter((n) => p.asks[n].sql === cacheKey) : [];
+    const other = idxs.filter((n) => p.asks[n].sql !== lastSql);
+    function one(pool) { return pool[Math.floor(Math.random() * pool.length)]; }
+    if (sameCache.length && Math.random() < 0.35) {
+      const wording = sameCache.filter((n) => n !== lastIdx);
+      return one(wording.length ? wording : sameCache);
+    }
+    if (sameSelf.length > 1 && Math.random() < 0.4) {
+      return one(sameSelf.filter((n) => n !== lastIdx));
+    }
+    if (other.length) return one(other);
+    return (lastIdx + 1) % p.asks.length;
+  }
+  function syncFocus(w, who) {
+    const hit = currentAsk(who, w).hit;
+    const day = { M: 0, T: 1, W: 2, Th: 3, F: 4, thu: 3 };
+    if (day[hit] != null) w.focus[who] = day[hit];
+    else if (hit === "week" || hit === "ads" || hit === "tix" || hit === "open") w.focus[who] = -1;
+    else if (hit === "US" || hit === "search" || hit === "p1") w.focus[who] = 0;
+    else if (hit === "UK" || hit === "email" || hit === "sev" || hit === "last") w.focus[who] = 1;
+    else if (hit === "DE" || hit === "rows") w.focus[who] = 2;
+  }
+  function thoughtHTML(i, w) {
+    const a = currentAsk(i, w);
+    const feel = askFeel(a);
+    const asking = w.lastWho === i;
+    const line = asking ? `<p class="askline">${a.say}</p>` : "";
+    return `<div class="say${asking ? " live" : ""}">${cloudHTML(feel)}</div>${line}`;
+  }
+  function tiles(parts, live) {
+    return parts.map((t) => `<span class="sqltile${live ? " in" : ""}">${t}</span>`).join("");
+  }
+
+  function weekOf(w) { return w.weeks[weekIndex()]; }
+  function gizWeekRate() { return Math.round((LICENSE_MO + MACHINE_MO) / WEEKS); }
+  function gizWeekIndex(w) {
+    if (!w.gizmo || w.gizOnMs == null) return -1;
+    return Math.min(TOTAL_WEEKS - 1, Math.floor((state.playMs - w.gizOnMs) / WEEK_MS));
+  }
+  function gizStartWeek(w) {
+    if (!w.gizmo || w.gizOnMs == null) return -1;
+    return Math.min(TOTAL_WEEKS - 1, Math.max(0, Math.floor(w.gizOnMs / WEEK_MS)));
+  }
+  function gizStartMonth(w) {
+    const s = gizStartWeek(w);
+    if (s < 0) return -1;
+    return Math.min(MONTHS - 1, Math.floor(s / WEEKS));
+  }
+  function stampGizWeek(w, i) {
+    const wk = w.weeks[i];
+    if (!wk || wk.gz) return;
+    wk.gz = gizWeekRate();
+    wk.switched = true;
+  }
+  function accrueGiz(w) {
+    const start = gizStartWeek(w);
+    if (start < 0) return;
+    const end = weekIndex();
+    for (let i = start; i <= end; i++) stampGizWeek(w, i);
+  }
+  function pushTick(w, from, text, key) {
+    if (!w.ticker) w.ticker = [];
+    if (!w.tickKeys) w.tickKeys = {};
+    if (key && w.tickKeys[key]) return;
+    if (key) w.tickKeys[key] = true;
+    w.ticker.push({ t: clock(), from: from, text: text });
+    if (w.ticker.length > 80) w.ticker = w.ticker.slice(-60);
+  }
+  function tickerHTML(w, label) {
+    const rows = (w.ticker || []).map((m) =>
+      `<div class="tick"><b class="from">${m.from}</b><time>${m.t}</time><p>${m.text}</p></div>`
+    ).join("");
+    return `<div class="chan">${label || "#ai-analyst · internal"}</div>${rows}`;
+  }
+  function tickerCompareHTML(left, right) {
+    return `<div class="talk-pane">${tickerHTML(left, "#ai-analyst · " + eng().name)}</div>` +
+      `<div class="talk-pane giz">${tickerHTML(right, "#ai-analyst · GizmoSQL")}</div>`;
+  }
+  function fillTalk(html, split) {
+    const talk = document.getElementById("talk");
+    const stick = talk.scrollHeight - talk.scrollTop - talk.clientHeight < 36;
+    const saved = talk.scrollTop;
+    const pin = state.pinTalk;
+    state.pinTalk = false;
+    talk.classList.toggle("split-talk", !!split);
+    talk.innerHTML = html;
+    if (split) {
+      talk.querySelectorAll(".talk-pane").forEach((p) => { p.scrollTop = p.scrollHeight; });
+    } else {
+      talk.scrollTop = (pin || stick) ? talk.scrollHeight : saved;
+    }
+  }
+  function yearSavedNow(w) {
+    const start = gizStartMonth(w);
+    if (start < 0) return 0;
+    const nowM = monthIndex();
+    let n = 0;
+    for (let mo = start; mo <= nowM; mo++) n += monthWould(w, mo) - monthGz(w, mo);
+    return n;
+  }
+  function startGiz(w) {
+    w.gizmo = true;
+    w.gizOnMs = state.playMs;
+    w.aiRevAtGiz = w.aiRev;
+    w.questionsAtGiz = w.questions;
+    w.seatRevAtGiz = yearCompany(w);
+    w.pulled = false;
+    w.duckSlice = "";
+    w.restricted = false;
+    w.emergency = false;
+    w.budgetCut = null;
+    w.warn = false;
+    w.rearranging = true;
+    state.askCool = 0;
+    clearGiz(w);
+    stampGizWeek(w, weekIndex());
+    state.lastGizWeek = gizWeekIndex(w);
+    pushTick(w, "Data team", "Follow-ups stay on DuckDB. Snowflake is the source, not the meter.", "giz-on");
+    pushTick(w, "Finance", "If the warehouse bill stops growing with each question, seats stay and usage keeps adding.", "giz-econ");
+    setTimeout(() => {
+      w.rearranging = false;
+      mount();
+    }, 700);
+  }
+  function stopGiz(w) {
+    w.gizmo = false;
+    w.pulled = false;
+    w.duckSlice = "";
+    w.gizOnMs = null;
+    clearGiz(w);
+  }
+  function sliceKey(ask) {
+    const hit = ask.hit;
+    if (hit === "week" || hit === "M" || hit === "T" || hit === "W" || hit === "Th" || hit === "F" || hit === "thu") return "gmv|week";
+    if (hit === "US" || hit === "UK" || hit === "DE") return "gmv|country";
+    if (hit === "rows") return "gmv|rows";
+    if (hit === "tix" || hit === "sev" || hit === "p1") return "tix";
+    if (hit === "ads" || hit === "search" || hit === "email") return "ads";
+    if (hit === "open") return "ord|open";
+    if (hit === "last") return "ord|last";
+    return ask.sql;
+  }
+  function sliceLabel(key) {
+    return ({
+      "gmv|week": "GMV this week",
+      "gmv|country": "GMV by country",
+      "gmv|rows": "US order rows",
+      tix: "Tickets this week",
+      ads: "Ads this week",
+      "ord|open": "Open orders",
+      "ord|last": "Orders last week",
+    })[key] || key;
+  }
+  function sliceFits(w, ask) {
+    return !!(w.gizmo && w.pulled && w.duckSlice && w.duckSlice === sliceKey(ask));
+  }
+  function setWalk(w, via) {
+    w.walkVia = via || "";
+    w.walkLive = !!via;
+    w.walkRow = 0;
+    w.walkStep = -1;
+    w.walkWho = via ? w.lastWho : -1;
+  }
+  function walkShowing(w) {
+    return !!(w.walkOpen || w.walkLive) && !!w.walkVia;
+  }
+  function walkAsk(w) {
+    const i = w.walkWho >= 0 ? w.walkWho : w.lastWho;
+    if (i >= 0) return currentAsk(i, w);
+    return PEOPLE[0].asks[0];
+  }
+  function tableOf(ask) {
+    const from = (ask.parts || []).find((p) => /^FROM /i.test(p));
+    return from ? from.replace(/^FROM\s+/i, "") : "orders";
+  }
+  function sqlLine(ask) {
+    return (ask.parts || []).join(" ");
+  }
+  function walkRows(w, via) {
+    const ask = walkAsk(w);
+    const table = tableOf(ask);
+    const sql = sqlLine(ask);
+    const engine = eng().name;
+    const slice = w.duckSlice ? sliceLabel(w.duckSlice) : sliceLabel(sliceKey(ask));
+    if (via === "cache") {
+      return [{
+        kind: "wh",
+        who: engine,
+        steps: [
+          { t: "SQL", d: sql },
+          { t: "Read", d: "stored result" },
+          { t: "Run", d: "skipped", skip: true },
+          { t: "Out", d: "$0" },
+        ],
+      }];
+    }
+    if (via === "duck") {
+      return [{
+        kind: "duck",
+        who: "DuckDB",
+        steps: [
+          { t: "SQL", d: sql },
+          { t: "Read", d: table + " in DuckDB" },
+          { t: "Run", d: sql },
+          { t: "Out", d: "$0" },
+        ],
+      }];
+    }
+    if (via === "pull") {
+      return [
+        {
+          kind: "wh",
+          who: engine,
+          steps: [
+            { t: "SQL", d: "load " + slice },
+            { t: "Read", d: table + " in " + engine },
+            { t: "Run", d: "scan " + table },
+            { t: "Out", d: "rows to DuckDB · " + (w.lastBite ? "−" + money(w.lastBite) : "$0") },
+          ],
+        },
+        {
+          kind: "duck",
+          who: "DuckDB",
+          steps: [
+            { t: "SQL", d: sql },
+            { t: "Read", d: table + " in DuckDB" },
+            { t: "Run", d: sql },
+            { t: "Out", d: "$0" },
+          ],
+        },
+      ];
+    }
+    return [{
+      kind: "wh",
+      who: engine,
+      steps: [
+        { t: "SQL", d: (w.lastFanout > 1 ? w.lastFanout + " × " : "") + sql },
+        { t: "Read", d: table + " in " + engine },
+        { t: "Run", d: sql },
+        { t: "Out", d: w.lastBite ? "−" + money(w.lastBite) : "$0" },
+      ],
+    }];
+  }
+  function walkHTML(w) {
+    if (!walkShowing(w)) return "";
+    const rows = walkRows(w, w.walkVia);
+    const body = rows.map((row, ri) =>
+      `<div class="crow" data-kind="${row.kind}" data-wrow="${ri}"><b>${row.who}</b>${
+        row.steps.map((s, si) =>
+          `<span class="cstep${s.skip ? " skip" : ""}" data-wstep="${si}"><em>${s.t}</em><i>${s.d}</i></span>`
+        ).join("")
+      }</div>`
+    ).join("");
+    return `<div class="cwalk show" data-walk>${body}</div>`;
+  }
+  function stripHTML() {
+    return `<div class="cstrip">
+      <span class="cdot" data-c="0">SQL</span>
+      <span class="cdot" data-c="1">Read</span>
+      <span class="cdot" data-c="2">Run</span>
+      <span class="cdot" data-c="3">Out</span>
+    </div>`;
+  }
+  function paintWalk(root, w) {
+    if (!root || !w) return;
+    const via = w.walkVia;
+    const computeLit = (via === "warehouse" || via === "pull") && w.walkRow === 0;
+    const sliceLit = (via === "duck" && w.walkRow === 0) || (via === "pull" && w.walkRow === 1);
+    const cacheLit = via === "cache" && w.walkRow === 0;
+    function mark(sel, lit) {
+      root.querySelectorAll(sel).forEach((el) => {
+        const i = +el.getAttribute("data-c");
+        el.classList.toggle("now", lit && i === w.walkStep);
+        el.classList.toggle("on", lit && w.walkStep >= 0 && i <= w.walkStep);
+      });
+    }
+    mark("[data-unit=compute] .cdot", computeLit);
+    mark("[data-unit=slice] .cdot", sliceLit);
+    mark("[data-unit=cache] .cdot", cacheLit);
+    root.querySelectorAll("[data-walk] [data-wrow]").forEach((row) => {
+      const ri = +row.getAttribute("data-wrow");
+      row.querySelectorAll("[data-wstep]").forEach((el) => {
+        const si = +el.getAttribute("data-wstep");
+        const done = ri < w.walkRow || (ri === w.walkRow && si <= w.walkStep);
+        el.classList.toggle("on", done && w.walkStep >= 0);
+        el.classList.toggle("now", ri === w.walkRow && si === w.walkStep);
+      });
+    });
+  }
+  function playWalkRows(root, w, rowIndexes) {
+    const rows = walkRows(w, w.walkVia);
+    const which = rowIndexes || rows.map((_, i) => i);
+    let chain = Promise.resolve();
+    which.forEach((ri) => {
+      const steps = (rows[ri] && rows[ri].steps) || [];
+      steps.forEach((_, si) => {
+        chain = chain.then(() => {
+          w.walkRow = ri;
+          w.walkStep = si;
+          paintWalk(root, w);
+          return wait(200);
+        });
+      });
+    });
+    return chain;
+  }
+  function monthSeats(w, mo) {
+    return monthSlice(mo).reduce((n, i) => Math.max(n, (w.weeks[i] && w.weeks[i].seats) || 0), 0);
+  }
+  function billedSeats(w, mo) {
+    const now = monthIndex();
+    if (mo > now) return w.open;
+    const peak = monthSeats(w, mo);
+    if (mo === now) return Math.max(peak, w.open);
+    return peak;
+  }
+  function monthCompany(w, mo) {
+    return billedSeats(w, mo) * SEAT_MO;
+  }
+  function yearCompany(w) {
+    let n = 0;
+    for (let mo = 0; mo < MONTHS; mo++) n += monthCompany(w, mo);
+    return n;
+  }
+  function yourRev(w) {
+    return w.aiRev + yearCompany(w);
+  }
+  function monthAsks(w, mo) {
+    const m = mo == null ? monthIndex() : mo;
+    return monthSlice(m).reduce((n, i) => {
+      const bill = w.seatBill[i] || emptySeatWeek();
+      return n + bill.reduce((a, s) => a + ((s && s.asks) || 0), 0);
+    }, 0);
+  }
+  function monthRev(w) {
+    return monthAsks(w) * ASK_REV + monthCompany(w, monthIndex());
+  }
+  function revPairHTML(w) {
+    const month = monthRev(w);
+    const year = yourRev(w);
+    const asksMo = monthAsks(w);
+    return `<div class="ba">
+      <div><em>This month</em><div class="n">${money(month)}</div>
+        <div class="sub">${asksMo} questions · ${w.open} seats · ${money(w.open * SEAT_MO)} /mo</div>
+      </div>
+      <div><em>Year</em><div class="n">${money(year)}</div>
+        <div class="sub">${w.questions} questions · ${money(w.aiRev)} usage · ${money(yearCompany(w))} seats</div>
+      </div>
+    </div>`;
+  }
+  function clearGiz(w) {
+    w.weeks.forEach((wk) => {
+      wk.gz = 0;
+      wk.switched = false;
+    });
+  }
+  function rollWeek(w) {
+    const i = weekIndex();
+    const wk = w.weeks[i];
+    wk.seats = Math.max(wk.seats, w.open);
+    wk.sf = wk.qSf;
+    wk.sfWould = wk.qWould;
+    w.dollars = w.weeks.reduce((n, x) => n + x.sf, 0);
+  }
+  function addWeekQuery(w, billed, dollars) {
+    const wk = w.weeks[weekIndex()];
+    wk.qWould += dollars;
+    if (billed) wk.qSf += dollars;
+    rollWeek(w);
+  }
+  function billAskQueries(w, onWarehouse, n) {
+    const cost = queryCost() * n;
+    w.lastFanout = n;
+    if (onWarehouse) {
+      w.whQueries += n;
+      billWarehouse(w, cost);
+      addWeekQuery(w, true, cost);
+    } else {
+      w.lastBite = 0;
+      addWeekQuery(w, false, cost);
+    }
+    return cost;
+  }
+  function bumpAsk(w, who, miss, onWarehouse) {
+    const i = weekIndex();
+    if (!w.seatBill[i]) w.seatBill[i] = emptySeatWeek();
+    const s = w.seatBill[i][who];
+    const wk = w.weeks[i];
+    wk.asksWould += 1;
+    s.asks += 1;
+    if (onWarehouse) wk.asks += 1;
+    if (miss) {
+      wk.missesWould += 1;
+      s.misses += 1;
+      if (onWarehouse) wk.misses += 1;
+    }
+    rollWeek(w);
+  }
+
+  function accrue() {
+    const i = weekIndex();
+    state.worlds.forEach((w) => {
+      resetBudgetMonth(w);
+      w.weeks[i].seats = Math.max(w.weeks[i].seats, w.open);
+      accrueGiz(w);
+      rollWeek(w);
+      checkBudget(w);
+    });
+  }
+
+  function monthWould(w, mo) { return sumKey(w, monthSlice(mo), "sfWould"); }
+  function monthRateSf(w) {
+    const nowM = monthIndex();
+    for (let mo = nowM - 1; mo >= 0; mo--) {
+      const n = monthWould(w, mo);
+      if (n > 0) return n;
+    }
+    const cur = monthWould(w, nowM);
+    const weeksDone = weekInMonth() + 1;
+    return weeksDone ? Math.round((cur / weeksDone) * WEEKS) : 0;
+  }
+  function monthRateGz() { return gizWeekRate() * WEEKS; }
+  function amt(n, kind, proj) {
+    if (n == null) return `<span class="${kind}">—</span>`;
+    return `<span class="${kind}${proj ? " proj" : ""}">${money(n)}</span>`;
+  }
+  function ledgerBook(sfW, gzW, counterfactualSf) {
+    const nowM = monthIndex();
+    const gizStart = gizStartMonth(gzW);
+    const switched = gizStart >= 0;
+    const rateSf = monthRateSf(sfW);
+    const rateGz = monthRateGz();
+    let ySf = 0;
+    let yGz = 0;
+    let ySaved = 0;
+    let anyGz = false;
+    let sfProjYear = false;
+    let gzProjYear = false;
+    let savedProjYear = false;
+    const months = Array.from({ length: MONTHS }, (_, mo) => {
+      const simulated = mo <= nowM;
+      const afterGiz = switched && mo >= gizStart;
+      let sf = null;
+      let sfProj = false;
+      if (simulated && afterGiz && counterfactualSf) {
+        sf = monthWould(sfW, mo);
+        sfProj = true;
+      } else if (simulated) {
+        sf = monthSf(sfW, mo);
+        sfProj = !!counterfactualSf;
+      } else if (afterGiz) {
+        sf = rateSf;
+        sfProj = true;
+      }
+      let gz = null;
+      let gzProj = false;
+      if (afterGiz && simulated) {
+        gz = monthGz(gzW, mo);
+      } else if (afterGiz) {
+        gz = rateGz;
+        gzProj = true;
+      }
+      const saved = (sf != null && gz != null) ? sf - gz : null;
+      const savedProj = saved != null && (sfProj || gzProj);
+      if (sf != null) {
+        ySf += sf;
+        if (sfProj) sfProjYear = true;
+      }
+      if (gz != null) {
+        yGz += gz;
+        anyGz = true;
+        if (gzProj) gzProjYear = true;
+      }
+      return `<div class="mrow${mo === nowM ? " now" : ""}">
+        <span>Month ${mo + 1}${mo === nowM ? "<em>now</em>" : ""}${afterGiz && mo === gizStart ? "<em>giz</em>" : ""}</span>
+        ${amt(sf, "pay", sfProj)}
+        ${amt(gz, "gz", gzProj)}
+        ${amt(saved, "ok", savedProj)}
+      </div>`;
+    }).join("");
+    ySaved = anyGz ? ySf - yGz : 0;
+    savedProjYear = anyGz && (sfProjYear || gzProjYear);
+    return { months, ySf, yGz, ySaved, anyGz, sfProjYear, gzProjYear, savedProjYear };
+  }
+  function monthWh(w) { return monthSf(w, monthIndex()); }
+  function queryCost() {
+    const e = eng();
+    const size = state.whSize || 1;
+    if (e.hourly) return CHUNK * (e.hourly / 24) * size;
+    if (e.scan) return 60 * size;
+    return 40 * size;
+  }
+  function creditOf(dollars) {
+    if (state.engine === "snowflake") return dollars / 3;
+    if (state.engine === "databricks") return dollars / 0.55;
+    return 0;
+  }
+  function billWarehouse(w, dollars) {
+    if (!dollars) return;
+    w.whSpend += dollars;
+    w.credits += creditOf(dollars);
+    w.lastBite = dollars;
+  }
+  function billAi(w) {
+    w.aiRev += ASK_REV;
+  }
+  function pace(w) {
+    if (w.gizmo) return 1;
+    if (w.restricted) return 0.28;
+    if (w.warn) return 0.5;
+    return 1;
+  }
+  function askRate(w) {
+    return 0.0004 * w.open * (w.gizmo ? 1.15 : 1) * pace(w) * (w.opsMul || 0);
+  }
+  function tabState(w, i) {
+    if (i >= w.open) return "off";
+    if (!state.auto) return "idle";
+    if (!w.gizmo && w.restricted && i >= CORE) return "lock";
+    if (!w.gizmo && w.warn && i % 2 !== 0 && w.lastWho !== i) return "idle";
+    if (w.lastWho === i) return "live";
+    return "on";
+  }
+  function showBubble(w, i) {
+    if (!state.auto || i >= w.open || seatOff(w, i)) return i === w.lastWho;
+    if (w.restricted && !w.gizmo) return i === w.lastWho;
+    if (w.warn && !w.gizmo) return i % 2 === 0 || i === w.lastWho;
+    return i === w.lastWho || i % 3 !== 2;
+  }
+  function budgetCap(w) { return (w && w.budgetCap) || BUDGET; }
+  function budgetUsed(w) { return (w.whSpend || 0) / budgetCap(w); }
+  function checkBudget(w) {
+    resetBudgetMonth(w);
+    const used = budgetUsed(w);
+    if (w.gizmo) {
+      w.warn = false;
+      w.restricted = false;
+      w.emergency = false;
+      return;
+    }
+    w.warn = used >= 0.75 && w.budgetCut !== "cutseats";
+    if (used >= 0.75 && used < 0.9 && !w.gizmo) {
+      pushTick(w, "Finance", "Warehouse spend is at 75%. If we keep this ask rate we hit the cap.", "warn");
+      pushTick(w, "Exec", "Is the analyst worth it if the warehouse bill eats the margin?", "warn-cba");
+    }
+    if (used >= 0.9) {
+      if (w.budgetCut === "raise") w.budgetCut = null;
+      if (!w.budgetCut) {
+        if (!w.restricted) {
+          state.auto = false;
+          state.pausedForBudget = true;
+          state.pinTalk = true;
+          pushTick(w, "Data team", "USAGE RESTRICTED. Warehouse spend hit the cap (" + budgetText(w) + "). Seats and questions cannot go up.");
+          pushTick(w, "Finance", "The cost is the blocker. We cannot add seats or questions until we pick: fewer seats, more budget, or freeze hiring.");
+          pushTick(w, "Exec", "We do not have the capacity to scale this. The warehouse cap is the limit.");
+        }
+        w.restricted = true;
+        w.emergency = true;
+      }
+    }
+  }
+  function budgetLine(w) {
+    const pct = Math.round(Math.min(100, budgetUsed(w) * 100));
+    const cap = budgetCap(w);
+    if (w.gizmo) {
+      return { cls: "", text: "Local queries. Warehouse budget barely moving." };
+    }
+    if (w.restricted || usedDead(w)) return { cls: "dead", text: "USAGE RESTRICTED." };
+    if (w.warn) return { cls: "warn", text: "⚠ Warehouse spend getting high." };
+    return { cls: "", text: "WAREHOUSE BUDGET · " + pct + "% of " + money(cap) };
+  }
+  function usedDead(w) { return budgetUsed(w) >= 0.9 && !w.gizmo; }
+  function seatOff(w, i) {
+    return !state.auto || i >= w.open || (w.budgetCut === "gmv" && i >= CORE);
+  }
+  function officeMods(w) {
+    let s = "";
+    if (w.budgetCut === "gmv") s += " shut";
+    if (w.budgetCut) s += " cut";
+    if (w.restricted && !w.gizmo) s += " panic";
+    else if (w.warn && !w.gizmo) s += " hot";
+    if ((w.warn || w.restricted) && !w.gizmo) s += " slow";
+    if (w.rearranging) s += " reroute";
+    return s;
+  }
+  function isGmvAsk(who, w) {
+    const a = currentAsk(who, w);
+    return a.hit === "week" || a.sql === "gmv|week";
+  }
+  function waitingOnCut(w) {
+    return !w.gizmo && w.restricted && !w.budgetCut;
+  }
+  function resetBudgetMonth(w) {
+    const mo = monthIndex();
+    if (w.budgetMonth === mo) return;
+    w.budgetMonth = mo;
+    w.whSpend = 0;
+    w.credits = 0;
+    w.tankFrom = 0;
+    w.budgetCut = null;
+    w.warn = false;
+    w.restricted = false;
+    w.emergency = false;
+  }
+  function openEmergency(w) {
+    if (w.gizmo) return;
+    w.emergency = true;
+    w.restricted = true;
+    w.noteFrom = "Data team · Slack";
+    w.note = "USAGE RESTRICTED. Warehouse spend hit 90%. Questions per minute are down.";
+  }
+  function pickCut(w, cut) {
+    w.budgetCut = cut;
+    w.emergency = false;
+    w.noteFrom = "Data team · Slack";
+    state.pinTalk = true;
+    if (cut === "cutseats") {
+      dropLastSeat(w);
+      w.restricted = false;
+      w.warn = false;
+      w.note = "One seat closed. Fewer people asking this month. Next month the warehouse budget starts over.";
+      pushTick(w, "RevOps", "We closed a seat. Back to " + w.open + ". We cannot add seats or questions while the warehouse is at the cap.");
+      pushTick(w, "Finance", "That seat was " + money(SEAT_MO) + " a month. This month stays on the invoice. It is off the rest of the year.");
+    } else if (cut === "raise") {
+      w.budgetCap = budgetCap(w) + BUDGET_STEP;
+      if (budgetUsed(w) >= 0.9) {
+        w.budgetCut = null;
+        w.restricted = true;
+        w.emergency = true;
+        w.note = "We raised the budget to " + money(budgetCap(w)) + ". Spend is still over the cap. Seats and questions stay locked.";
+        pushTick(w, "Finance", "We raised the warehouse budget to " + money(budgetCap(w)) + ". It is still not enough. " + budgetText(w) + ".");
+        pushTick(w, "Exec", "We still cannot scale. The cap is still the limit.");
+      } else {
+        w.restricted = false;
+        w.warn = budgetUsed(w) >= 0.75;
+        w.note = "Monthly warehouse budget is now " + money(budgetCap(w)) + ".";
+        pushTick(w, "Finance", "We raised the warehouse budget to " + money(budgetCap(w)) + ". Asking can continue. Unit economics got worse.");
+        pushTick(w, "Exec", "We're paying more warehouse so the analyst can keep running.");
+      }
+    } else if (cut === "hold") {
+      w.restricted = false;
+      w.warn = true;
+      w.note = "Seats frozen. No new seats this month. Current seats keep asking.";
+      pushTick(w, "RevOps", "No new seats this month. Current seats keep asking. + stays locked.");
+      pushTick(w, "Finance", "We froze growth. The warehouse cap is still the limit. We cannot add seats or questions.");
+    } else {
+      w.restricted = false;
+      w.warn = true;
+      w.note = "Keep going. This month stays over budget.";
+    }
+    if (state.pausedForBudget) {
+      state.pausedForBudget = false;
+      startAuto();
+    }
+  }
+
+  function talkFor(w) {
+    checkBudget(w);
+    if (w.gizmo) {
+      w.noteFrom = "Data team";
+      w.note = "Follow-ups stay on DuckDB. Warehouse is the source, not the meter.";
+      const saved = yearSavedNow(w);
+      if (saved > 40) {
+        pushTick(w, "Finance", "We're saving warehouse dollars (" + money(saved) + " this year). The analyst isn't hurting us on cost. We should use it more.", "giz-save");
+      }
+      return;
+    }
+    if (w.restricted) {
+      w.noteFrom = "Data team · Slack";
+      w.note = "USAGE RESTRICTED. Questions per minute are down. AI revenue is slowing.";
+      return;
+    }
+    if (w.warn) {
+      w.noteFrom = "Data team · Slack";
+      w.note = "⚠ Warehouse spend getting high. Employees are slowing down.";
+      return;
+    }
+    w.noteFrom = "Data team";
+    if (w.lastEvent && w.lastEvent.via === "warehouse" && w.lastFanout > 1) {
+      w.note = "One question ran " + w.lastFanout + " warehouse queries (−" + money(w.lastBite) + ").";
+    } else {
+      w.note = "Ask another question. Each one runs " + QUERIES_PER_ASK + " warehouse queries.";
+    }
+  }
+
+  function maybeUnlock(w) {
+    if (w.heldOpen) return;
+    if (w.open >= PEOPLE.length) return;
+    if (!w.gizmo && (w.warn || w.restricted || w.budgetCut || w.emergency)) return;
+    w.unlockIn += 1;
+    if (w.unlockIn < 3) return;
+    w.unlockIn = 0;
+    w.open += 1;
+    const p = PEOPLE[w.open - 1];
+    w.noteFrom = "RevOps";
+    w.note = p.name + " (" + p.title + ") wants a seat: “" + p.dash + "” — tied to this week’s GMV.";
+    if (w.gizmo) {
+      pushTick(w, "RevOps", p.name + " (" + p.title + ") wants a seat. Warehouse cost isn't the blocker anymore.", "seat-" + w.open);
+      pushTick(w, "Exec", "Turn it on. More questions, and another " + money(SEAT_MO) + " a month.", "seat-go-" + w.open);
+    } else {
+      pushTick(w, "RevOps", p.name + " (" + p.title + ") wants a seat for “" + p.dash + "”.", "seat-" + w.open);
+    }
+  }
+
+  function tickScaleUp(w, p) {
+    if (w.gizmo) {
+      pushTick(w, "RevOps", p.name + " (" + p.title + ") wants a seat. Warehouse cost isn't the blocker anymore.");
+      pushTick(w, "Exec", "Turn it on. More questions, and another " + money(SEAT_MO) + " a month.");
+      return;
+    }
+    pushTick(w, "RevOps", "We're adding " + p.name + " (" + p.title + "). More people will ask.");
+  }
+  function tickScaleDown(w, p) {
+    if (w.gizmo) {
+      pushTick(w, "RevOps", "We closed " + p.name + "'s seat. Fewer questions.");
+      pushTick(w, "Finance", "The warehouse bill was not the reason. One fewer person asking, and " + money(SEAT_MO) + " a month off the rest of the year.");
+      return;
+    }
+    pushTick(w, "RevOps", "We closed " + p.name + "'s seat. Fewer questions. Usage revenue will slow.");
+    pushTick(w, "Finance", "That seat was " + money(SEAT_MO) + " a month. This month stays on the invoice. It is off the rest of the year.");
+  }
+  function budgetPct(w) {
+    return Math.round(Math.min(100, budgetUsed(w) * 100));
+  }
+  function budgetText(w) {
+    return money(w.whSpend) + " / " + money(budgetCap(w)) + " · " + budgetPct(w) + "%";
+  }
+  function budgetCls(w) {
+    if (w.gizmo) return "";
+    if (w.restricted || usedDead(w)) return "dead";
+    if (w.warn) return "warn";
+    return "";
+  }
+  function tickOps(w, asked, spent) {
+    if (!asked && !spent) return;
+    if (w.gizmo) {
+      pushTick(w, "RevOps", asked + " more question" + (asked === 1 ? "" : "s") + ". Usage +" + money(asked * ASK_REV) + ".");
+      if (spent > 0) {
+        pushTick(w, "Finance", "Warehouse pull " + money(spent) + " this round. Follow-ups stayed on DuckDB. Budget " + budgetText(w) + ".");
+      } else {
+        pushTick(w, "Finance", "Warehouse still " + budgetText(w) + ". Follow-ups were $0.");
+      }
+      return;
+    }
+    pushTick(w, "RevOps", asked + " question" + (asked === 1 ? "" : "s") + " this round. Usage +" + money(asked * ASK_REV) + ".");
+    pushTick(w, "Finance", eng().name + " +" + money(spent) + " this round. Warehouse budget is " + budgetText(w) + ".");
+    if (budgetUsed(w) >= 0.75 && budgetUsed(w) < 0.9) {
+      pushTick(w, "Exec", "Warehouse spend is at " + budgetPct(w) + "%. More questions get us to the cap.");
+    }
+  }
+  function settleAsk(w) {
+    w.tankFrom = w.whSpend;
+    w.computeOn = false;
+    w.cacheOn = false;
+    w.duckOn = false;
+    w.phase = "";
+  }
+  function askQuiet(w, who) {
+    if (who < 0 || who >= w.open) return { asked: 0, spent: 0 };
+    if (waitingOnCut(w)) return { asked: 0, spent: 0 };
+    if (!w.gizmo && w.restricted && who >= CORE) return { asked: 0, spent: 0 };
+    const before = w.whSpend;
+    const q0 = w.questions;
+    const dest = apply(w, who);
+    if (dest !== "queue" && dest !== "bounce") {
+      const last = w.log[0];
+      if (last) recordCard(w, who, last.via, last.sf == null ? 0 : last.sf);
+    }
+    settleAsk(w);
+    return { asked: Math.max(0, w.questions - q0), spent: Math.max(0, w.whSpend - before) };
+  }
+  function runOps(w) {
+    if (waitingOnCut(w)) {
+      pushTick(w, "Data team", "USAGE RESTRICTED. Questions are not running. The warehouse budget already hit the cap.");
+      return 0;
+    }
+    let asked = 0;
+    let spent = 0;
+    for (let i = 0; i < w.open; i++) {
+      if (waitingOnCut(w)) break;
+      const r = askQuiet(w, i);
+      asked += r.asked;
+      spent += r.spent;
+      talkFor(w);
+    }
+    if (asked || spent) tickOps(w, asked, spent);
+    return asked;
+  }
+  function dropLastSeat(w) {
+    if (w.open <= 1) return null;
+    const p = PEOPLE[w.open - 1];
+    w.open -= 1;
+    if (w.lastWho >= w.open) w.lastWho = -1;
+    if (w.focusSeat >= w.open) w.focusSeat = -1;
+    if (w.held && w.held.who >= w.open) w.held = null;
+    if (w.openCard && w.openCard.who >= w.open) w.openCard = null;
+    return p;
+  }
+  function canScaleUp(w) {
+    if (!w || w.gizmo) return true;
+    if (waitingOnCut(w)) return false;
+    if (w.budgetCut === "hold") return false;
+    if (budgetUsed(w) >= 0.9 && w.budgetCut !== "raise") return false;
+    return true;
+  }
+  function tickScaleBlocked(w) {
+    state.pinTalk = true;
+    pushTick(w, "Data team", "USAGE RESTRICTED. We cannot add seats or questions. Warehouse budget is " + budgetText(w) + ".");
+    pushTick(w, "Finance", "Cost is the blocker. The cap is the limit. Numbers stay put until we pick: fewer seats, more budget, or freeze hiring.");
+    pushTick(w, "Exec", "We do not have the capacity to scale this on " + eng().name + ".");
+    talkFor(w);
+  }
+  function scaleOpen(w, delta) {
+    if (delta > 0 && !canScaleUp(w)) {
+      tickScaleBlocked(w);
+      return false;
+    }
+    const next = Math.max(1, Math.min(PEOPLE.length, w.open + delta));
+    if (next === w.open) return false;
+    w.heldOpen = true;
+    w.unlockIn = 0;
+    state.pinTalk = true;
+    if (next > w.open) {
+      w.open = next;
+      tickScaleUp(w, PEOPLE[w.open - 1]);
+      const r = askQuiet(w, w.open - 1);
+      talkFor(w);
+      tickOps(w, r.asked, r.spent);
+    } else {
+      const p = dropLastSeat(w);
+      if (p) tickScaleDown(w, p);
+    }
+    const wk = w.weeks[weekIndex()];
+    if (wk) wk.seats = Math.max(wk.seats, w.open);
+    rollWeek(w);
+    talkFor(w);
+    return true;
+  }
+  function scaleOps(w, delta) {
+    if (delta > 0 && !canScaleUp(w)) {
+      tickScaleBlocked(w);
+      return false;
+    }
+    const cur = w.opsMul == null ? 1 : w.opsMul;
+    state.pinTalk = true;
+    if (delta < 0) {
+      if (cur <= 0) return false;
+      w.opsMul = cur - 1;
+      w.heldOpen = true;
+      if (w.opsMul === 0) {
+        pushTick(w, "RevOps", "We kept the seats. We stopped asking so the warehouse bill can cool.");
+        pushTick(w, "Finance", "Seats stay on the invoice. Warehouse spend stays at " + budgetText(w) + " until we ask again.");
+      } else {
+        pushTick(w, "RevOps", "Fewer questions from here. Ask pace is now ×" + w.opsMul + ".");
+        pushTick(w, "Finance", "Warehouse budget stays " + budgetText(w) + ". Already-spent dollars do not come back.");
+      }
+      talkFor(w);
+      return true;
+    }
+    w.opsMul = Math.min(4, Math.max(1, cur + 1));
+    w.heldOpen = true;
+    runOps(w);
+    return true;
+  }
+  function steerRow(kind, minus, plus, label, hint, cls, worldAttr) {
+    return `<div class="steerbar${cls ? " " + cls : ""}">
+      <button type="button" class="steer" data-${kind}="-1"${worldAttr}${minus ? " disabled" : ""} aria-label="Fewer ${kind === "scale" ? "seats" : "questions"}">&minus;</button>
+      <div class="steer-read">${label}<em>${hint}</em></div>
+      <button type="button" class="steer" data-${kind}="1"${worldAttr}${plus ? " disabled" : ""} aria-label="More ${kind === "scale" ? "seats" : "questions"}">+</button>
+    </div>`;
+  }
+  function steerHTML(w) {
+    const worlds = w ? [w] : state.worlds;
+    const worldAttr = w ? ' data-world="' + w.id + '"' : "";
+    const seatLo = worlds.every((x) => x.open <= 1);
+    const upLock = worlds.some((x) => !canScaleUp(x));
+    const seatHi = upLock || worlds.every((x) => x.open >= PEOPLE.length);
+    const opsLo = worlds.every((x) => (x.opsMul || 0) <= 0);
+    const opsHi = upLock;
+    let seats;
+    let seatHint;
+    let asks;
+    let askHint;
+    let cls = "";
+    if (w) {
+      seats = w.open + " seats · " + money(w.open * SEAT_MO) + " /mo";
+      seatHint = upLock
+        ? "Cap hit. + is locked. Pick in the restrict box. The ticker is the company talking."
+        : "New seat asks once. Warehouse budget updates on that question.";
+      const pace = (w.opsMul || 0) === 0 ? "Asking stopped" : "Asking ×" + (w.opsMul || 1);
+      asks = pace + " · " + monthAsks(w) + " questions this month · " + budgetText(w);
+      askHint = w.gizmo
+        ? "Each + is one question per seat. Follow-ups stay off the warehouse invoice."
+        : (upLock
+          ? "Cannot add questions. Warehouse cap is the limit until someone picks."
+          : "Each + is one question per seat on " + eng().name + ". Watch the warehouse cap.");
+      cls = budgetCls(w);
+    } else {
+      const a = state.worlds[0];
+      const b = state.worlds[1] || a;
+      seats = a.open === b.open
+        ? a.open + " seats"
+        : eng().name + " " + a.open + " · GizmoSQL " + b.open;
+      seatHint = upLock
+        ? eng().name + " hit the cap. + is locked until that office picks."
+        : "Same client seats. New seats ask once on both sides.";
+      const paceA = (a.opsMul || 0) === 0 ? "stopped" : "×" + (a.opsMul || 1);
+      const paceB = (b.opsMul || 0) === 0 ? "stopped" : "×" + (b.opsMul || 1);
+      asks = eng().name + " " + paceA + " · " + monthAsks(a) + " asks · " + budgetText(a)
+        + " · GizmoSQL " + paceB + " · " + monthAsks(b) + " asks · " + budgetText(b);
+      askHint = upLock
+        ? eng().name + " cannot add questions. Pick in the restrict box. Watch that ticker."
+        : "Each + is one question per seat on both offices. Watch " + eng().name + " hit the cap.";
+      cls = budgetCls(a);
+    }
+    return `<div class="steers">
+      ${steerRow("scale", seatLo, seatHi, seats, seatHint, "", worldAttr)}
+      ${steerRow("ops", opsLo, opsHi, asks, askHint, cls, worldAttr)}
+    </div>`;
+  }
+
+  function apply(w, who, pick) {
+    const p = PEOPLE[who];
+    if (pick != null) {
+      w.dim[who] = Math.max(0, Math.min(pick, p.asks.length - 1));
+    } else {
+      w.dim[who] = chooseAsk(p, w.dim[who] || 0, w.lastCacheKey);
+    }
+    syncFocus(w, who);
+    const sql = sqlOf(who, w);
+    const label = labelOf(who, w);
+    w.questions += 1;
+    w.lastWho = who;
+    w.held = null;
+    w.cacheOn = false;
+    w.computeOn = false;
+    w.duckOn = false;
+    w.tankFrom = w.whSpend;
+    w.sqlParts = sqlParts(who, w);
+    w.askChip = chipLabel(currentAsk(who, w));
+    w.phase = "sql";
+
+    if (waitingOnCut(w) && !w.gizmo) {
+      if (!w.walkOpen) setWalk(w, "");
+      line("queue", null, null);
+      return "queue";
+    }
+    if (w.budgetCut === "gmv" && !isGmvAsk(who, w) && !w.gizmo) {
+      if (!w.walkOpen) setWalk(w, "");
+      line("bounce", null, null);
+      return "bounce";
+    }
+
+    const ask = currentAsk(who, w);
+    const need = sliceKey(ask);
+    const same = sql === w.lastCacheKey;
+
+    function line(via, sf, gz) {
+      w.lastEvent = { via: via };
+      w.log.unshift({
+        t: clock(), who: p.name, title: p.title, ask: label, via: via, sf: sf, gz: gz,
+      });
+    }
+
+    if (same && eng().cache && !w.gizmo) {
+      w.cacheOn = true;
+      w.phase = "cache";
+      w.lastFanout = QUERIES_PER_ASK;
+      w.lastBite = 0;
+      bumpAsk(w, who, false, true);
+      billAi(w);
+      line("cache", 0, null);
+      setWalk(w, "cache");
+      return "cache";
+    }
+
+    if (sliceFits(w, ask)) {
+      w.duckOn = true;
+      w.phase = "duck";
+      w.gizRuns += 1;
+      bumpAsk(w, who, true, false);
+      billAi(w);
+      billAskQueries(w, false, QUERIES_PER_ASK);
+      accrueGiz(w);
+      line("GizmoSQL", null, 0);
+      setWalk(w, "duck");
+      return "duck";
+    }
+
+    if (w.gizmo) {
+      w.pulled = true;
+      w.duckSlice = need;
+      w.computeOn = true;
+      w.phase = "compute";
+      w.lastCacheKey = sql;
+      w.cacheParts = w.sqlParts.slice();
+      w.cacheChip = w.askChip;
+      bumpAsk(w, who, true, true);
+      billAi(w);
+      const cost = billAskQueries(w, true, 1);
+      accrueGiz(w);
+      line("pull", cost, 0);
+      setWalk(w, "pull");
+      return "pull";
+    }
+
+    w.computeOn = true;
+    w.phase = "compute";
+    w.lastCacheKey = sql;
+    w.cacheParts = w.sqlParts.slice();
+    w.cacheChip = w.askChip;
+    bumpAsk(w, who, true, true);
+    billAi(w);
+    const cost = billAskQueries(w, true, QUERIES_PER_ASK);
+    line("warehouse", cost, null);
+    setWalk(w, "warehouse");
+    return "compute";
+  }
+
+  const GMV_DAYS = [
+    { d: "M", k: 42, x: 8 },
+    { d: "T", k: 44, x: 28 },
+    { d: "W", k: 46, x: 48 },
+    { d: "Th", k: 22, x: 68 },
+    { d: "F", k: 30, x: 88 },
+  ];
+
+  function wave(seed, amp) {
+    const t = (typeof performance !== "undefined" ? performance.now() : 0) / 1000;
+    return Math.sin(t * 1.35 + seed * 1.7) * amp;
+  }
+  function weekPos() {
+    if (!state.worlds[0] || !state.worlds[0].built) return 0;
+    return Math.min(4.999, frac() * 5);
+  }
+  function gmvY(k) {
+    return Math.max(3, 20 - (k / 50) * 16);
+  }
+  let bookAt = -1;
+  let bookSnap = null;
+  function book() {
+    const t = Math.floor((typeof performance !== "undefined" ? performance.now() : 0) / 40);
+    if (bookSnap && bookAt === t) return bookSnap;
+    const pos = weekPos();
+    const days = GMV_DAYS.map((d, n) => {
+      let k = 0;
+      if (pos >= n) {
+        const p = Math.min(1, pos - n);
+        if (n === 3) k = GMV_DAYS[2].k + (d.k - GMV_DAYS[2].k) * p;
+        else k = d.k * (0.4 + 0.6 * p);
+      }
+      k = Math.max(0, k + wave(n, n === 3 ? 0.6 : 1.4));
+      return { d: d.d, x: d.x, k, y: gmvY(k) };
+    });
+    const week = days.reduce((s, d) => s + d.k, 0);
+    const raw = [0.61, 0.26, 0.13].map((s) => week * s);
+    const top = Math.max(...raw, 1);
+    const share = raw.map((k, n) => ({
+      c: ["US", "UK", "DE"][n],
+      k,
+      h: Math.max(8, (k / top) * 100),
+    }));
+    const thu = Math.max(0, pos - 3);
+    const tix = [
+      Math.max(1, Math.round(1 + pos * 0.4 + thu * 3 + wave(20, 0.8))),
+      Math.max(1, Math.round(1 + pos * 0.35 + thu * 1.2 + wave(21, 0.6))),
+      Math.max(1, Math.round(1 + pos * 0.2 + wave(22, 0.4))),
+    ];
+    const ads = [
+      { name: "search", k: Math.max(0.4, 9.2 * (pos / 5) + 2.2 + wave(30, 0.5)) },
+      { name: "email", k: Math.max(0.2, 3.1 * (pos / 5) + 0.8 + wave(31, 0.35)) },
+    ];
+    const shipped = 3 + Math.floor(pos * 0.9);
+    const open = Math.max(2, 10 - Math.floor(pos * 1.3) + Math.round(wave(40, 0.6)));
+    const rows = [
+      { id: 1042, k: Math.max(200, 1200 + wave(50, 90)), st: "TX" },
+      { id: 1049, k: Math.max(200, 890 + wave(51, 70)), st: "NY" },
+      { id: 1101, k: Math.max(200, 640 + wave(52, 80)), st: "CA" },
+    ];
+    bookAt = t;
+    bookSnap = { days, week, share, tix, ads, shipped, open, rows };
+    return bookSnap;
+  }
+
+  function viz(p, i, w, live) {
+    const step = w.dim[i] || 0;
+    const foc = w.focus[i] ?? 0;
+    const b = book();
+    if (p.sql === "gmv|week") {
+      const picked = foc >= 0;
+      const day = picked ? b.days[foc] : b.days[3];
+      const pts = b.days.map((x) => x.x + "," + x.y).join(" ");
+      const mark = picked ? foc : 3;
+      const dots = b.days.map((x, n) =>
+        `<circle class="dot${n === mark ? " on" : ""}" data-gmv-dot="${n}" cx="${x.x}" cy="${x.y}" r="${n === mark ? 3.2 : 2}"/>`
+      ).join("");
+      const days = GMV_DAYS.map((x, n) =>
+        `<span data-dim="0" data-focus="${n}" class="${picked && n === foc ? "on" : ""}">${x.d}</span>`
+      ).join("");
+      const shown = picked ? day.k : b.week;
+      return `<div class="head">
+        <div class="ttl" data-gmv-ttl>${picked ? (GMV_DAYS[foc].d === "Th" ? "Thursday dip" : GMV_DAYS[foc].d + " GMV") : "GMV this week"}</div>
+        <div class="num${picked && GMV_DAYS[foc].d === "Th" ? " down" : ""}" data-gmv-num>$${Math.round(shown)}k</div>
+      </div>
+        <svg class="spark" viewBox="0 0 100 22">
+          <polyline class="dip" data-gmv-line points="${pts}"/>
+          ${dots}
+        </svg>
+        <div class="days">${days}</div>`;
+    }
+    if (p.name === "Ben") {
+      return `<div class="ttl">GMV by country</div>
+        <div class="countries">${b.share.map((r, n) =>
+          `<div data-dim="${n}" class="${step === n ? "on" : ""}"><span class="grow"><i data-bar="${n}" style="height:${r.h}%"></i></span><em data-k="${n}">$${Math.round(r.k)}k</em><u>${r.c}</u></div>`
+        ).join("")}</div>`;
+    }
+    if (p.name === "Cara") {
+      const max = Math.max(5, ...b.tix);
+      return `<div class="ttl"><span data-dim="0" class="${step === 0 ? "on" : ""}">tickets</span><span data-dim="1" class="${step === 1 ? "on" : ""}">severity</span></div>
+        <div class="tix">
+          <b class="p1${foc === 0 && step === 1 ? " on" : ""}" data-dim="1" data-focus="0" data-tix="0" style="height:${(b.tix[0] / max) * 100}%"></b>
+          <b class="p2${foc === 1 && step === 1 ? " on" : ""}" data-dim="1" data-focus="1" data-tix="1" style="height:${(b.tix[1] / max) * 100}%"></b>
+          <b class="p3${foc === 2 && step === 1 ? " on" : ""}" data-dim="1" data-focus="2" data-tix="2" style="height:${(b.tix[2] / max) * 100}%"></b>
+        </div>
+        <div class="days"><span data-tix-n="0">P1 · ${b.tix[0]}</span><span data-tix-n="1">P2 · ${b.tix[1]}</span><span data-tix-n="2">P3 · ${b.tix[2]}</span></div>`;
+    }
+    if (p.name === "Elle") {
+      const top = Math.max(4, b.ads[0].k);
+      return `<div class="ttl"><span data-dim="0" class="${step === 0 ? "on" : ""}">week</span><span data-dim="1" class="${step === 1 ? "on" : ""}">channel</span></div>
+        <div class="ads">
+          <div data-dim="1" data-focus="0" class="${step === 1 && foc === 0 ? "on" : ""}"><span data-ad-n="0">search $${b.ads[0].k.toFixed(1)}k</span><i data-ad="0" style="width:${(b.ads[0].k / top) * 100}%"></i></div>
+          <div data-dim="1" data-focus="1" class="${step === 1 && foc === 1 ? "on" : ""}"><span data-ad-n="1">email $${b.ads[1].k.toFixed(1)}k</span><i data-ad="1" style="width:${(b.ads[1].k / top) * 100}%"></i></div>
+        </div>`;
+    }
+    if (p.name === "Gita") {
+      const n = step === 1 ? 4 : b.open;
+      return `<div class="ttl"><span data-dim="0" class="${step === 0 ? "on" : ""}">open</span><span data-dim="1" class="${step === 1 ? "on" : ""}">last week</span></div>
+        <div class="pkgs${step === 1 ? " old" : ""}" data-pkgs data-dim="${step}">${"<i class='go'></i>".repeat(b.shipped)}${"<i></i>".repeat(n)}</div>`;
+    }
+    if (p.name === "Hugo") {
+      return `<div class="ttl"><span data-dim="0" class="${step === 0 ? "on" : ""}">Slack</span><span data-dim="1" class="${step === 1 ? "on" : ""}">US rows</span></div>
+        ${step === 1
+          ? `<div class="grid3${live ? " on" : ""}" data-dim="1"><span>order</span><span>gmv</span><span>st</span>
+          ${b.rows.map((r, n) => `<span>${r.id}</span><span data-cell="${n}">${Math.round(r.k)}</span><span>${r.st}</span>`).join("")}</div>`
+          : `<div class="chat"><p data-dim="0" class="${foc === 0 ? "on" : ""}">why is GMV down?</p><p data-dim="0" data-focus="1" class="${foc === 1 ? "on" : ""}">Thursday dropped.</p></div>`}`;
+    }
+    return `<div class="ttl">${p.dash}</div>`;
+  }
+
+  function paintCharts() {
+    document.querySelectorAll("[data-screen].on").forEach((el) => {
+      const who = +el.getAttribute("data-screen");
+      const site = el.closest("[data-world]") || document.getElementById("office");
+      const w = state.worlds.find((x) => x.id === (site.getAttribute("data-world") || "a"));
+      if (!w || !w.built || who >= w.open) return;
+      const p = PEOPLE[who];
+      const b = book();
+      const foc = w.focus[who] ?? 0;
+      if (p.sql === "gmv|week") {
+        const picked = foc >= 0;
+        const shown = picked ? b.days[foc].k : b.week;
+        const num = el.querySelector("[data-gmv-num]");
+        const line = el.querySelector("[data-gmv-line]");
+        const ttl = el.querySelector("[data-gmv-ttl]");
+        if (num) {
+          num.textContent = "$" + Math.round(shown) + "k";
+          num.classList.toggle("down", (picked ? GMV_DAYS[foc].d : "Th") === "Th" && (picked || weekPos() >= 3));
+        }
+        if (ttl) ttl.textContent = picked ? (GMV_DAYS[foc].d === "Th" ? "Thursday dip" : GMV_DAYS[foc].d + " GMV") : "GMV this week";
+        if (line) line.setAttribute("points", b.days.map((d) => d.x + "," + d.y).join(" "));
+        b.days.forEach((d, n) => {
+          const dot = el.querySelector('[data-gmv-dot="' + n + '"]');
+          if (dot) dot.setAttribute("cy", d.y);
+        });
+      }
+      if (p.name === "Ben") {
+        b.share.forEach((r, n) => {
+          const bar = el.querySelector('[data-bar="' + n + '"]');
+          const k = el.querySelector('[data-k="' + n + '"]');
+          if (bar) bar.style.height = r.h + "%";
+          if (k) k.textContent = "$" + Math.round(r.k) + "k";
+        });
+      }
+      if (p.name === "Cara") {
+        const max = Math.max(5, ...b.tix);
+        b.tix.forEach((n, i) => {
+          const bar = el.querySelector('[data-tix="' + i + '"]');
+          const lab = el.querySelector('[data-tix-n="' + i + '"]');
+          if (bar) bar.style.height = (n / max) * 100 + "%";
+          if (lab) lab.textContent = ["P1", "P2", "P3"][i] + " · " + n;
+        });
+      }
+      if (p.name === "Elle") {
+        const top = Math.max(4, b.ads[0].k);
+        b.ads.forEach((a, i) => {
+          const bar = el.querySelector('[data-ad="' + i + '"]');
+          const lab = el.querySelector('[data-ad-n="' + i + '"]');
+          if (bar) bar.style.width = (a.k / top) * 100 + "%";
+          if (lab) lab.textContent = a.name + " $" + a.k.toFixed(1) + "k";
+        });
+      }
+      if (p.name === "Gita") {
+        const box = el.querySelector("[data-pkgs]");
+        if (box) {
+          const step = w.dim[who] || 0;
+          const n = step === 1 ? 4 : b.open;
+          const html = "<i class='go'></i>".repeat(b.shipped) + "<i></i>".repeat(n);
+          if (box.getAttribute("data-html") !== html) {
+            box.setAttribute("data-html", html);
+            box.innerHTML = html;
+          }
+        }
+      }
+      if (p.name === "Hugo") {
+        b.rows.forEach((r, n) => {
+          const cell = el.querySelector('[data-cell="' + n + '"]');
+          if (cell) cell.textContent = String(Math.round(r.k));
+        });
+      }
+    });
+  }
+
+  function startCharts() {
+    if (state.chartRaf) return;
+    const loop = (now) => {
+      state.chartRaf = requestAnimationFrame(loop);
+      paintCharts();
+      paintPeople(now);
+    };
+    state.chartRaf = requestAnimationFrame(loop);
+  }
+
+  function paintPeople(now) {
+    if (!state.lastBody) state.lastBody = now || performance.now();
+    const t = now || performance.now();
+    const dt = Math.min(0.05, (t - state.lastBody) / 1000);
+    state.lastBody = t;
+    const sec = t / 1000;
+    document.querySelectorAll("[data-person]").forEach((el) => {
+      const i = +el.getAttribute("data-person");
+      const site = el.closest("[data-world]") || document.getElementById("office");
+      const w = state.worlds.find((x) => x.id === (site.getAttribute("data-world") || "a"));
+      if (!w) return;
+      if (!w.bodies) w.bodies = PEOPLE.map((_, n) => makeBody(n));
+      const b = w.bodies[i];
+      const asking = w.lastWho === i;
+      const sit = seatOff(w, i) || asking;
+      const office = el.closest(".office") || document.getElementById("office");
+      const home = homeOf(i, office);
+      const running = state.auto;
+      const canWalk = running && !sit && i < w.open;
+      if (sit) {
+        b.x = home.x;
+        b.y = home.y;
+        b.tx = home.x;
+        b.ty = home.y;
+        b.mode = "sit";
+      } else if (!running) {
+        b.tx = b.x;
+        b.ty = b.y;
+        b.mode = "idle";
+      } else if (canWalk) {
+        b.wait -= dt;
+        if (b.wait <= 0 && b.mode !== "walk") {
+          const go = Math.random() < 0.35 ? home : {
+            x: Math.max(3, Math.min(92, home.x + (Math.random() - 0.35) * (onPhone() ? 10 : 18))),
+            y: Math.max(10, Math.min(92, home.y + (Math.random() - 0.45) * (onPhone() ? 8 : 16))),
+          };
+          b.tx = go.x;
+          b.ty = go.y;
+          b.wait = 2 + Math.random() * 3.5;
+        }
+      }
+      const dx = b.tx - b.x;
+      const dy = b.ty - b.y;
+      const dist = Math.hypot(dx, dy);
+      if (sit) {
+        b.mode = "sit";
+      } else if (!running) {
+        b.mode = "idle";
+      } else if (dist > 0.45) {
+        b.mode = "walk";
+        const step = 13 * dt * pace(w);
+        const m = Math.min(step, dist);
+        b.x += (dx / dist) * m;
+        b.y += (dy / dist) * m;
+        b.face = dx >= 0 ? 1 : -1;
+        b.gait += dt * 9.5;
+      } else {
+        b.x = b.tx;
+        b.y = b.ty;
+        b.mode = "idle";
+      }
+      el.style.left = b.x + "%";
+      el.style.top = b.y + "%";
+      el.classList.toggle("ask", asking);
+      el.classList.toggle("sit", sit);
+      const wrap = el.querySelector(".body");
+      const bob = !running ? 0 : (b.mode === "walk" ? Math.abs(Math.cos(b.gait)) * 2.2 : Math.sin(sec * 1.6 + i) * 0.8);
+      if (wrap) wrap.style.transform = "scaleX(" + b.face + ") translateY(" + (-bob) + "px)";
+      const idle = running ? Math.sin(sec * 1.7 + i * 0.9) : 0;
+      const g = b.gait;
+      if (b.mode === "walk") {
+        setJ(el, "head", Math.sin(g) * 5, 20, 7);
+        setJ(el, "armL", Math.sin(g) * 26, 12, 16.2);
+        setJ(el, "armR", -Math.sin(g) * 26, 28, 16.2);
+        setJ(el, "legL", Math.sin(g) * 24, 15.4, 32.2);
+        setJ(el, "legR", -Math.sin(g) * 24, 24.6, 32.2);
+        setJ(el, "body", 0, 20, 24);
+      } else if (b.mode === "sit") {
+        setJ(el, "body", 6, 20, 32);
+        setJ(el, "head", 4, 20, 7);
+        setJ(el, "armL", 18, 12, 16.2);
+        setJ(el, "armR", -12, 28, 16.2);
+        setJ(el, "legL", -68, 15.4, 32.2);
+        setJ(el, "legR", -54, 24.6, 32.2);
+      } else {
+        setJ(el, "body", idle * 2, 20, 32);
+        setJ(el, "head", idle * 5, 20, 7);
+        setJ(el, "armL", idle * 6, 12, 16.2);
+        setJ(el, "armR", idle * 8, 28, 16.2);
+        setJ(el, "legL", idle * 3, 15.4, 32.2);
+        setJ(el, "legR", -idle * 3, 24.6, 32.2);
+      }
+    });
+  }
+
+  function officeHTML(w) {
+    const desks = PEOPLE.map((p, i) => {
+      const s = spots()[i];
+      const asking = w.lastWho === i;
+      const vacant = i >= w.open;
+      const on = state.auto && w.built && !vacant && !(w.budgetCut === "gmv" && i >= CORE);
+      return `<div class="desk${vacant ? " vacant" : " seated"}${asking ? " asking" : ""}${w.focusSeat === i ? " pick" : ""}${w.litSeats && on ? " litseat" : ""}" data-who="${i}" style="left:${s.x}%;top:${s.y}%">
+        <div class="screen ${on ? "on" : "off"} ${asking ? "live" : ""}" data-screen="${i}">
+          ${on ? viz(p, i, w, asking) : `<div class="ttl">dark</div>`}
+        </div>
+        <div class="top">
+          <button type="button" class="who" data-seat="${i}">${p.name} <span>${p.title}</span></button>
+          ${vacant ? "" : stackHTML(w, i)}
+        </div>
+      </div>`;
+    }).join("");
+    const folks = PEOPLE.map((p, i) => {
+      if (i >= w.open) return "";
+      const b = (w.bodies && w.bodies[i]) || makeBody(i);
+      const asking = w.lastWho === i;
+      const sit = seatOff(w, i);
+      const bubble = w.held && w.held.who === i
+        ? heldHTML(w.held)
+        : (showBubble(w, i) ? thoughtHTML(i, w) : "");
+      return `<div class="person${asking ? " ask" : ""}${sit ? " sit" : ""}${w.warn && !w.gizmo ? " slow" : ""}" data-person="${i}" style="left:${b.x}%;top:${b.y}%">
+        ${bubble}
+        <i class="shadow"></i>
+        <div class="body">${svgFig(i)}</div>
+      </div>`;
+    }).join("");
+
+    const shownSpend = w.tankFrom != null ? w.tankFrom : w.whSpend;
+    const cap = budgetCap(w);
+    const used = Math.min(100, Math.max(0, (shownSpend / cap) * 100));
+    const left = Math.max(0, cap - shownSpend);
+    const line = budgetLine(w);
+    const tankClass = usedDead(w) || w.restricted
+      ? "dead" : (w.warn ? "warn" : "");
+    const stack = w.cacheStack || [];
+    const rack = stack.map((c) =>
+      `<span class="rcard${w.cacheOn && c.sql === w.lastCacheKey ? " match" : ""}">${c.chip}</span>`
+    ).join("");
+    const vs = state.split
+      ? `<div class="vs-bar${w.gizmo ? " giz" : ""}">${w.gizmo ? "GizmoSQL" : eng().name}${w.gizmo ? "<em>DuckDB</em>" : "<em>left</em>"}</div>`
+      : "";
+    const engines = state.auto
+      ? ""
+      : (state.split && w.gizmo)
+        ? `<div class="engines gizonly">DuckDB after one pull</div>`
+        : `<div class="engines">${ENGINE_IDS.map((id) =>
+            `<button type="button" data-eng="${id}" class="${state.engine === id ? "on" : ""}">${ENGINE[id].name}</button>`
+          ).join("")}<span class="sizes">${SIZES.map((s) =>
+            `<button type="button" data-size="${s.id}" class="${state.whSize === s.id ? "on" : ""}">${s.label}</button>`
+          ).join("")}</span></div>`;
+    const creds = w.credits > 0
+      ? w.credits.toFixed(1) + " credits → " + money(w.whSpend)
+      : money(w.whSpend);
+    const timer = w.computeOn
+      ? String(Math.floor(w.runSec / 60)).padStart(1, "0") + ":" + String(Math.floor(w.runSec % 60)).padStart(2, "0")
+      : "0:00";
+    return `<div class="hvac">
+        ${vs}
+        ${engines}
+        <div class="stage">
+          <div class="wharf ${w.cacheOn ? "hit" : ""} ${w.computeOn ? "work" : ""} ${w.duckOn ? "duck" : ""}" data-unit="warehouse">
+            <div class="wharf-head">
+              <div class="wh-id">
+                <b>${w.gizmo ? (w.computeOn ? eng().name + " pull" : "DuckDB") : eng().name}</b>
+                <span class="wh-power ${w.computeOn ? "on" : "idle"}"><i></i>${w.computeOn ? "ON" : "IDLE"}</span>
+              </div>
+              <button type="button" class="wh-budget ${tankClass}${w.litTank ? " lit" : ""}" data-unit="tank">
+                <span class="meter">
+                  <i data-fluid style="height:${used}%"></i>
+                  <span class="m75"></span>
+                  <span class="m90"></span>
+                </span>
+                <span class="amt">${money(left)} <em>month left</em></span>
+              </button>
+            </div>
+            <div class="budget-banner ${line.cls}">
+              <span>${line.text}</span>
+              <span class="flash${w.computeOn ? " on" : ""}">${w.computeOn && w.lastFanout > 1 ? "1 question → " + w.lastFanout + " queries · −" + money(w.lastBite) : (w.computeOn ? "Warehouse running " + timer : (w.duckOn ? (w.lastFanout > 1 ? w.lastFanout + " queries on DuckDB · warehouse $0" : "DuckDB · warehouse dark") : "Warehouse idle"))}</span>
+              <span class="creds"><b>${creds}</b></span>
+            </div>
+            <div class="pipe ${w.gizmo ? "gizpath" : "whpath"}${w.askChip ? " feed" : ""}${w.cacheOn ? " hit" : ""}${w.computeOn ? " work" : ""}">
+              <div class="bay ${w.askChip ? (w.cacheOn || w.duckOn ? "hit" : (w.computeOn ? "work" : "")) : ""}" data-unit="inbox">
+                <i class="led"></i>
+                <div class="lbl">1. Query in</div>
+                ${w.askChip ? `<span class="askchip${w.cacheOn || w.duckOn ? " same" : ""}">${w.askChip}</span>${w.computeOn && w.lastFanout > 1 ? `<div class="sub">1 ask → ${w.lastFanout} queries</div>` : ""}` : `<span class="sub">waiting</span>`}
+              </div>
+              ${w.gizmo ? `
+              <div class="cmp ${w.duckOn ? "same" : (w.computeOn ? "new" : "")}">
+                ${w.duckOn ? "in DuckDB" : (w.computeOn ? eng().name + " → load data → DuckDB" : "in DuckDB?")}
+                <span class="stamp match">MATCH</span>
+                <span class="stamp miss">MISS</span>
+              </div>
+              <div class="bay ${w.duckOn ? "hit" : (w.duckSlice ? "" : "miss")}" data-unit="slice">
+                <i class="led"></i>
+                <div class="lbl">2. In DuckDB</div>
+                ${w.duckSlice
+                  ? `<span class="askchip same">${sliceLabel(w.duckSlice)}</span><div class="sub">${w.duckOn ? "this ask" : "loaded"}</div>`
+                  : `<span class="sub">empty</span>`}
+                ${stripHTML()}
+              </div>
+              <div class="bay ${w.computeOn ? "work" : "miss"}" data-unit="compute">
+                <i class="led"></i>
+                <div class="lbl">3. ${eng().name} pull</div>
+                <div class="plant">
+                  ${stripHTML()}
+                  <div class="tickdol">${w.computeOn && w.lastBite ? "−" + money(w.lastBite) : "$0"}</div>
+                </div>
+                <div class="sub">${w.computeOn ? "1 pull · they pay" : "off"}</div>
+              </div>` : `
+              <div class="cmp ${w.cacheOn ? "same" : (w.computeOn ? "new" : "")}">
+                ${w.cacheOn ? "same" : (w.computeOn ? (eng().cache ? "new" : "no cache") : "match?")}
+                <span class="stamp match">MATCH</span>
+                <span class="stamp miss">MISS</span>
+              </div>
+              <div class="bay ${w.cacheOn ? "hit" : (stack.length && !w.computeOn ? "" : "miss")}" data-unit="cache">
+                <i class="led"></i>
+                <div class="lbl">2. Stored result</div>
+                <div class="cache-rack">${rack || `<span class="sub">empty</span>`}</div>
+                ${stripHTML()}
+                <div class="sub">${w.cacheOn ? "hit · no compute" : (stack.length ? "last results" : "empty")}</div>
+              </div>
+              <div class="bay ${w.computeOn ? "work" : "miss"}" data-unit="compute">
+                <i class="led"></i>
+                <div class="lbl">3. Compute</div>
+                <div class="plant">
+                  ${stripHTML()}
+                  <div class="tickdol">${w.computeOn && w.lastBite ? "−" + money(w.lastBite) : "$0"}</div>
+                </div>
+                <div class="sub">${w.computeOn ? (w.lastFanout > 1 ? w.lastFanout + " queries · they pay" : "ran · they pay") : "off"}</div>
+              </div>`}
+            </div>
+            ${walkHTML(w)}
+          </div>
+        </div>
+        <div class="runway">
+          <div class="procs">
+            ${PEOPLE.map((p, i) => {
+              const st = tabState(w, i);
+              return `<button type="button" class="ptab ${st}" data-proc="${i}"><b>${p.title}</b><i class="tick"></i></button>`;
+            }).join("")}
+          </div>
+          <div class="agent ${w.lastWho >= 0 ? "live" : ""}" data-unit="agent">
+            <b>AI Analyst</b>
+          </div>
+          <div class="gbox ${w.gizmo ? "" : "dim"} ${w.duckOn ? "hit" : ""} ${w.gizmo && (w.duckOn || w.computeOn || w.phase === "sql") ? "livepath" : ""}" data-unit="gizmo">
+            <b>GizmoSQL</b>
+          </div>
+        </div>
+      </div>
+      <div class="floor">
+        ${desks}
+        ${folks}
+        ${waitingOnCut(w) ? `<div class="slack">
+        <i>Data team · Slack</i>
+        <b class="stop">USAGE RESTRICTED</b>
+        <p>Warehouse spend hit 90%. Seats and questions cannot go up. Pick one:</p>
+        <div class="cuts">
+          <button type="button" data-cut="cutseats">Decrease seats. One seat goes dark. Fewer questions this month.</button>
+          <button type="button" data-cut="raise">Increase budget by ${money(BUDGET_STEP)}. Restriction lifts if spend fits the new cap.</button>
+          <button type="button" data-cut="hold">Freeze seats. No new seats this month. Current seats keep asking.</button>
+        </div>
+      </div>` : ""}
+      </div>`;
+  }
+
+  function splitLabel() { return "GizmoSQL v " + eng().name; }
+
+  function paintLedger(w) {
+    if (state.split && state.worlds.length > 1) {
+      paintCompareLedger(state.worlds[0], state.worlds[1]);
+      return;
+    }
+    const nowW = weekIndex();
+    const whName = eng().name;
+    const book = ledgerBook(w, w, !!w.gizmo);
+    const { months, ySf, yGz, ySaved, anyGz, sfProjYear, gzProjYear, savedProjYear } = book;
+    const yearPaid = yearCompany(w);
+    const total = yourRev(w);
+    const bill = w.seatBill[nowW] || emptySeatWeek();
+    const seatRows = PEOPLE.map((p, i) => {
+      if (i >= w.open) return "";
+      return `<div class="wrow"><span>${p.name} · ${p.title}</span><span>${(bill[i] && bill[i].asks) || 0}</span><span>${money(SEAT_MO)}</span></div>`;
+    }).join("");
+    const title = document.getElementById("ledgerTitle");
+    if (title) title.textContent = "The invoices";
+    document.getElementById("ledgerWhy").textContent =
+      "You earn " + money(ASK_REV) + " each time someone asks, and " + money(SEAT_MO) + " a month for each seat. This month keeps the seats already on the invoice. The rest of the year follows who is still on the floor. Your customer pays " + whName + ": one question is " + QUERIES_PER_ASK + " warehouse queries. If that invoice hits the cap, they close a seat. That person stops asking, so questions and usage revenue drop. GizmoSQL does one warehouse pull, then the next questions stay off their invoice, so seats stay and you keep earning.";
+    const before = (w.gizmo && w.aiRevAtGiz != null)
+      ? w.aiRevAtGiz + (w.seatRevAtGiz || 0)
+      : null;
+    const extra = before != null ? total - before : 0;
+    const gizLine = before != null
+      ? `<div class="ba gizcmp">
+          <div><em>Before · ${whName}</em><div class="n">${money(before)}</div></div>
+          <div class="after"><em>After · GizmoSQL</em><div class="n">${money(total)}</div></div>
+        </div>
+        <div class="sub extra">+${money(extra)} extra</div>`
+      : "";
+    document.getElementById("compare").innerHTML = `
+    <button type="button" class="soldbig${w.gizmo ? " giz" : ""}" data-unit="sold">
+      <div class="k">AI Analyst · your revenue</div>
+      ${revPairHTML(w)}
+      ${gizLine}
+    </button>
+    ${steerHTML(w)}
+    <div class="seatstrip">
+      <div class="wrow head"><span>On the floor</span><span>asks</span><span>seat</span></div>
+      ${seatRows}
+      <div class="wrow tot"><span>Year seats</span><span></span><span>${money(yearPaid)}</span></div>
+    </div>
+    <div class="weeknow">
+      <div class="k">What your customer pays to run SQL</div>
+      <div class="hint">This is your client's cost structure: what they pay ${whName}, what they pay with GizmoSQL, and how much less they spent. Solid is a month we ran. Grey is what the same compute would cost.</div>
+      <div class="mrow head"><span></span><span>${whName}</span><span>GizmoSQL</span><span>Saved</span></div>
+      ${months}
+      <div class="yeartot">
+        <span>Year</span>
+        ${amt(ySf, "pay", sfProjYear)}
+        ${amt(anyGz ? yGz : null, "gz", gzProjYear)}
+        ${amt(anyGz ? ySaved : null, "ok", savedProjYear)}
+      </div>
+    </div>`;
+    fillTalk(tickerHTML(w), false);
+    document.getElementById("impact").innerHTML = "";
+    document.getElementById("sum").innerHTML = "";
+  }
+
+  function weekAsks(w, i) {
+    const bill = w.seatBill[i] || emptySeatWeek();
+    return bill.reduce((n, s, k) => n + (k < w.open ? s.asks : 0), 0);
+  }
+
+  function paintCompareLedger(left, right) {
+    const whName = eng().name;
+    const book = ledgerBook(left, right, false);
+    const { months, ySf, yGz, ySaved, anyGz, sfProjYear, gzProjYear, savedProjYear } = book;
+    const title = document.getElementById("ledgerTitle");
+    if (title) title.textContent = splitLabel();
+    document.getElementById("ledgerWhy").textContent =
+      "Two offices. On the left, " + whName + " spend hits the cap, they close a seat, questions drop, and your revenue slows. On the right, GizmoSQL does one pull; follow-ups stay off their invoice, so seats stay and questions keep adding. Use + and − on seats and on questions. The warehouse budget on that row is this month's spend. Scroll the ticker to see how the team talks about usage on " + whName + " versus GizmoSQL.";
+    document.getElementById("compare").innerHTML = `
+    <div class="vs-ledgers">
+      <button type="button" class="soldbig" data-unit="sold" data-world="a">
+        <div class="k">${whName} · your revenue</div>
+        ${revPairHTML(left)}
+      </button>
+      <button type="button" class="soldbig giz" data-unit="sold" data-world="b">
+        <div class="k">GizmoSQL · your revenue</div>
+        ${revPairHTML(right)}
+      </button>
+    </div>
+    ${steerHTML(null)}
+    <div class="weeknow">
+      <div class="k">What your customer pays to run SQL</div>
+      <div class="hint">This is your client's cost structure: what they pay ${whName}, what they pay with GizmoSQL, and how much less they spent. Solid is a month we ran. Grey is what the same compute would cost.</div>
+      <div class="mrow head"><span></span><span>${whName}</span><span>GizmoSQL</span><span>Saved</span></div>
+      ${months}
+      <div class="yeartot">
+        <span>Year</span>
+        ${amt(ySf, "pay", sfProjYear)}
+        ${amt(anyGz ? yGz : null, "gz", gzProjYear)}
+        ${amt(anyGz ? ySaved : null, "ok", savedProjYear)}
+      </div>
+    </div>`;
+    fillTalk(tickerCompareHTML(left, right), true);
+    document.getElementById("impact").innerHTML = "";
+    document.getElementById("sum").innerHTML = "";
+  }
+
+  function paneScale() {
+    if (onPhone()) return state.split ? 0.7 : 0.78;
+    if (!state.split) return 1;
+    const wrap = document.getElementById("office");
+    const pane = wrap ? wrap.clientWidth / 2 : 420;
+    return Math.max(0.42, Math.min(0.68, (pane * 0.2) / 140));
+  }
+  function parkBodies() {
+    state.worlds.forEach((w) => {
+      if (!w.bodies) return;
+      const office = document.querySelector('.office[data-world="' + w.id + '"]')
+        || document.getElementById("office");
+      w.bodies.forEach((b, i) => {
+        const h = homeOf(i, office);
+        b.x = h.x;
+        b.y = h.y;
+        b.tx = h.x;
+        b.ty = h.y;
+      });
+    });
+  }
+
+  function mount() {
+    const wrap = document.getElementById("office");
+    if (state.split) {
+      wrap.className = "offices";
+      wrap.style.display = "flex";
+      const sc = paneScale();
+      wrap.innerHTML = state.worlds.map((w) =>
+        `<div class="office split${officeMods(w)}" data-world="${w.id}" style="--scale:${sc}">${officeHTML(w)}</div>`
+      ).join("");
+    } else {
+      wrap.style.display = "";
+      wrap.className = "office" + officeMods(state.worlds[0]);
+      wrap.setAttribute("data-world", "a");
+      wrap.innerHTML = officeHTML(state.worlds[0]);
+    }
+    paintLedger(state.split ? state.worlds[1] : state.worlds[0]);
+    document.getElementById("split").textContent = splitLabel();
+    document.getElementById("gizmo").textContent = (!state.split && state.worlds[0].gizmo)
+      ? "GizmoSQL on"
+      : "INSTALL GIZMOSQL";
+    document.querySelectorAll("[data-unit=sold]").forEach((el) => {
+      el.onclick = (ev) => {
+        ev.stopPropagation();
+        const id = el.getAttribute("data-world");
+        const w = (id && state.worlds.find((x) => x.id === id))
+          || worldOf(el)
+          || (state.split ? state.worlds[1] : state.worlds[0]);
+        w.litSeats = !w.litSeats;
+        mount();
+      };
+    });
+    function steerTargets(el) {
+      const id = el.getAttribute("data-world");
+      if (id) return state.worlds.filter((x) => x.id === id);
+      return state.split ? state.worlds : [state.worlds[0]];
+    }
+    document.querySelectorAll("[data-scale]").forEach((el) => {
+      el.onclick = (ev) => {
+        ev.stopPropagation();
+        if (el.disabled) return;
+        const delta = +el.getAttribute("data-scale");
+        steerTargets(el).forEach((x) => scaleOpen(x, delta));
+        mount();
+      };
+    });
+    document.querySelectorAll("[data-ops]").forEach((el) => {
+      el.onclick = (ev) => {
+        ev.stopPropagation();
+        if (el.disabled) return;
+        const delta = +el.getAttribute("data-ops");
+        steerTargets(el).forEach((x) => scaleOps(x, delta));
+        mount();
+      };
+    });
+    document.querySelectorAll("[data-seat]").forEach((el) => {
+      el.onclick = (ev) => {
+        ev.stopPropagation();
+        const w = worldOf(el);
+        if (!w) return;
+        const i = +el.getAttribute("data-seat");
+        w.focusSeat = w.focusSeat === i ? -1 : i;
+        mount();
+      };
+    });
+    document.getElementById("gizmo").classList.toggle("on", !state.split && state.worlds[0].gizmo);
+    document.getElementById("gizmo").style.visibility = state.split ? "hidden" : "visible";
+    document.getElementById("split").classList.toggle("on", state.split);
+    document.getElementById("auto").classList.toggle("on", state.auto);
+    document.getElementById("auto").textContent = state.auto ? "Pause" : "Run the office";
+    document.querySelectorAll("[data-eng]").forEach((btn) => {
+      btn.onclick = (ev) => {
+        ev.stopPropagation();
+        state.engine = btn.getAttribute("data-eng");
+        state.worlds.forEach((w) => {
+          w.dollars = 0;
+          w.lastOn = -999;
+          w.lastCacheKey = "";
+          w.cacheParts = [];
+          w.cacheChip = "";
+          w.cacheStack = [];
+          w.tankFrom = 0;
+          w.askChip = "";
+          w.pulled = false;
+          w.duckSlice = "";
+          w.log = [];
+          w.shadowOn = -999;
+          w.weeks = Array.from({ length: TOTAL_WEEKS }, emptyWeek);
+          w.seatBill = Array.from({ length: TOTAL_WEEKS }, emptySeatWeek);
+          w.cards = PEOPLE.map(() => []);
+          w.cardSeq = 0;
+          w.lastCard = 0;
+          w.openCard = null;
+          w.litTank = false;
+          w.held = null;
+          w.emergency = false;
+          w.budgetCut = null;
+          w.budgetCap = BUDGET;
+          w.budgetMonth = monthIndex();
+          w.whSpend = 0;
+          w.credits = 0;
+          w.aiRev = 0;
+          w.aiRevAtGiz = null;
+          w.questionsAtGiz = null;
+          w.seatRevAtGiz = null;
+          w.ticker = [
+            { t: "09:00", from: "RevOps", text: "GMV dipped this week. Sales keeps asking the analyst the same follow-ups." },
+            { t: "09:01", from: "Finance", text: "Those follow-ups are landing on Snowflake. Watch the warehouse cap." },
+          ];
+          w.tickKeys = { seed: true };
+          w.runSec = 0;
+          w.lastBite = 0;
+          w.lastFanout = 0;
+          w.whQueries = 0;
+          w.restricted = false;
+          w.warn = false;
+          if (w.gizmo) {
+            w.gizOnMs = state.playMs;
+            clearGiz(w);
+            stampGizWeek(w, weekIndex());
+          }
+        });
+        mount();
+      };
+    });
+    startCharts();
+    document.querySelectorAll("[data-card]").forEach((el) => {
+      el.onclick = (ev) => {
+        ev.stopPropagation();
+        const w = worldOf(el);
+        if (!w) return;
+        const who = +el.getAttribute("data-who");
+        const id = +el.getAttribute("data-card");
+        if (w.openCard && w.openCard.who === who && w.openCard.id === id) w.openCard = null;
+        else w.openCard = { who, id };
+        mount();
+      };
+    });
+    document.querySelectorAll("[data-unit=tank]").forEach((el) => {
+      el.onclick = (ev) => {
+        ev.stopPropagation();
+        const w = worldOf(el);
+        if (!w) return;
+        w.litTank = !w.litTank;
+        mount();
+      };
+    });
+    document.querySelectorAll("[data-proc]").forEach((el) => {
+      el.onclick = (ev) => {
+        ev.stopPropagation();
+        const who = +el.getAttribute("data-proc");
+        const w = worldOf(el);
+        if (!w || !w.built || who >= w.open) return;
+        if (!w.gizmo && w.restricted && who >= CORE) return;
+        askOne(who);
+      };
+    });
+    document.querySelectorAll("[data-screen]").forEach((el) => {
+      el.onclick = (ev) => {
+        ev.stopPropagation();
+        const who = +el.getAttribute("data-screen");
+        const w = worldOf(el);
+        if (!w || !w.built || who >= w.open) return;
+        const bit = ev.target.closest("[data-dim]");
+        if (bit) {
+          const dim = +bit.getAttribute("data-dim");
+          w.focus[who] = bit.hasAttribute("data-focus") ? +bit.getAttribute("data-focus") : dim;
+          askOne(who, dim);
+          return;
+        }
+        askOne(who);
+      };
+    });
+    document.querySelectorAll("[data-cut]").forEach((el) => {
+      el.onclick = (ev) => {
+        ev.stopPropagation();
+        const w = worldOf(el);
+        if (!w) return;
+        pickCut(w, el.getAttribute("data-cut"));
+        mount();
+      };
+    });
+    document.querySelectorAll("[data-install]").forEach((el) => {
+      el.onclick = (ev) => {
+        ev.stopPropagation();
+        const w = worldOf(el) || state.worlds[0];
+        if (w.gizmo) return;
+        startGiz(w);
+        mount();
+      };
+    });
+    document.querySelectorAll("[data-size]").forEach((el) => {
+      el.onclick = (ev) => {
+        ev.stopPropagation();
+        state.whSize = +el.getAttribute("data-size");
+        mount();
+      };
+    });
+    document.querySelectorAll("[data-unit=compute], [data-unit=slice], [data-unit=cache]").forEach((el) => {
+      el.onclick = (ev) => {
+        ev.stopPropagation();
+        const w = worldOf(el);
+        if (!w) return;
+        toggleWalk(w, el.getAttribute("data-unit"));
+        if (state.flying) {
+          const root = el.closest(".office") || document.getElementById("office");
+          paintWalk(root, w);
+          return;
+        }
+        mount();
+      };
+    });
+    state.worlds.forEach((w) => {
+      const root = document.querySelector('.office[data-world="' + w.id + '"]')
+        || document.getElementById("office");
+      if (root) paintWalk(root, w);
+    });
+    fitFloor();
+    if (onPhone()) requestAnimationFrame(parkBodies);
+  }
+  function toggleWalk(w, unit) {
+    let via = w.walkVia;
+    if (unit === "compute") via = w.gizmo ? "pull" : "warehouse";
+    else if (unit === "slice") via = w.walkVia === "pull" ? "pull" : "duck";
+    else if (unit === "cache") via = "cache";
+    if (w.walkOpen && w.walkVia === via && !state.flying) {
+      w.walkOpen = false;
+      w.walkLive = false;
+      return;
+    }
+    w.walkOpen = true;
+    w.walkVia = via;
+    if (!state.flying && w.walkStep < 0) {
+      const rows = walkRows(w, via);
+      w.walkRow = Math.max(0, rows.length - 1);
+      w.walkStep = rows[w.walkRow] ? rows[w.walkRow].steps.length - 1 : -1;
+    }
+  }
+  function fitFloor() {
+    document.querySelectorAll(".office").forEach((office) => {
+      const hvac = office.querySelector(".hvac");
+      const floor = office.querySelector(".floor");
+      if (!hvac || !floor) return;
+      floor.style.top = hvac.offsetHeight + "px";
+    });
+  }
+
+  function askOne(who, pick) {
+    if (state.flying) return;
+    const flights = [];
+    state.worlds.forEach((w) => {
+      if (!w.built || who >= w.open) return;
+      if (waitingOnCut(w)) return;
+      if (w.restricted && !w.gizmo && state.askCool > 0) return;
+      if (w.restricted && !w.gizmo) state.askCool = COOL_MS;
+      talkFor(w);
+      const dest = apply(w, who, pick);
+      talkFor(w);
+      flights.push({ w, who, dest });
+    });
+    if (!flights.length) return;
+    mount();
+    state.flying = true;
+    let n = flights.length;
+    flights.forEach((f) => fly(f.w, f.who, f.dest, () => {
+      n -= 1;
+      if (n <= 0) {
+        state.flying = false;
+        state.worlds.forEach((w) => {
+          w.lastWho = -1;
+          w.computeOn = false;
+          w.cacheOn = false;
+          w.duckOn = false;
+          w.phase = "";
+          if (!w.walkOpen) {
+            w.walkLive = false;
+            w.walkStep = -1;
+          }
+        });
+        mount();
+      }
+    }));
+  }
+
+  function wait(ms) {
+    return new Promise((r) => setTimeout(r, ms));
+  }
+  function placeChip(root, from, label, extra) {
+    const r = root.getBoundingClientRect();
+    const a = from.getBoundingClientRect();
+    const p = document.createElement("div");
+    p.className = "pkt named signal pale glow" + (extra ? " " + extra : "");
+    p.textContent = label;
+    p.style.left = a.left - r.left + a.width / 2 + "px";
+    p.style.top = a.top - r.top + "px";
+    root.appendChild(p);
+    return p;
+  }
+  function rememberCache(w, sql, chip) {
+    if (!chip) return;
+    const next = (w.cacheStack || []).filter((c) => c.sql !== sql);
+    next.push({ sql: sql, chip: chip });
+    w.cacheStack = next.slice(-4);
+  }
+  function sleepPlant(root) {
+    root.querySelectorAll(".bay, .cmp, .wharf, .pipe").forEach((el) => {
+      el.classList.remove("hit", "work", "same", "new", "feed");
+    });
+    const power = root.querySelector(".wh-power");
+    if (power) {
+      power.className = "wh-power idle";
+      power.innerHTML = "<i></i>IDLE";
+    }
+    const flash = root.querySelector(".budget-banner .flash");
+    if (flash) flash.classList.remove("on");
+    const compute = root.querySelector("[data-unit=compute]");
+    if (compute) compute.classList.add("miss");
+  }
+  function scanCards(root, hit) {
+    const rack = root.querySelector(".cache-rack");
+    const cmp = root.querySelector(".cmp");
+    const cache = root.querySelector("[data-unit=cache]");
+    if (rack) rack.classList.add("scan");
+    return wait(320).then(() => {
+      if (cmp) {
+        if (hit) cmp.classList.add("flash-match", "same");
+        else cmp.classList.add("flash-miss", "new");
+      }
+      if (hit && cache) {
+        cache.classList.add("hit");
+        cache.classList.remove("miss");
+        const card = cache.querySelector(".rcard.match") || cache.querySelector(".rcard");
+        if (card) card.classList.add("flash");
+      }
+      return wait(280);
+    });
+  }
+  function drainMeter(root, w) {
+    const fluid = root.querySelector("[data-fluid]");
+    const budget = root.querySelector(".wh-budget");
+    if (fluid) {
+      const used = Math.min(100, Math.max(0, budgetUsed(w) * 100));
+      fluid.classList.add("draining");
+      requestAnimationFrame(() => { fluid.style.height = used + "%"; });
+    }
+    if (budget) {
+      budget.classList.add("draining");
+      const amt = budget.querySelector(".amt");
+      if (amt) amt.innerHTML = money(Math.max(0, budgetCap(w) - w.whSpend)) + " <em>month left</em>";
+    }
+    return wait(420);
+  }
+  function wakeCompute(root, w) {
+    const bay = root.querySelector("[data-unit=compute]");
+    const wharf = root.querySelector("[data-unit=warehouse]");
+    const pipe = root.querySelector(".pipe");
+    const power = root.querySelector(".wh-power");
+    const flash = root.querySelector(".budget-banner .flash");
+    const tick = root.querySelector(".tickdol");
+    if (bay) {
+      bay.classList.remove("miss");
+      bay.classList.add("work");
+    }
+    if (wharf) wharf.classList.add("work");
+    if (pipe) pipe.classList.add("work");
+    if (power) {
+      power.className = "wh-power on";
+      power.innerHTML = "<i></i>ON";
+    }
+    if (flash) flash.classList.add("on");
+    if (tick && w.lastBite) tick.textContent = "−" + money(w.lastBite);
+    return drainMeter(root, w);
+  }
+  function dropCacheCard(root, w) {
+    rememberCache(w, w.lastCacheKey, w.cacheChip);
+    const rack = root.querySelector(".cache-rack");
+    if (!rack || !w.cacheChip) return;
+    const empty = rack.querySelector(".sub");
+    if (empty) empty.remove();
+    const card = document.createElement("span");
+    card.className = "rcard fresh";
+    card.textContent = w.cacheChip;
+    rack.appendChild(card);
+    while (rack.querySelectorAll(".rcard").length > 4) {
+      const first = rack.querySelector(".rcard");
+      if (first) first.remove();
+    }
+  }
+  function sendResult(root, from, screen, label) {
+    if (!from || !screen) return Promise.resolve();
+    const pkt = placeChip(root, from, label || "result", "result-pkt");
+    pkt.classList.remove("signal", "pale");
+    pkt.classList.add("tag");
+    return moveChip(root, pkt, screen, 380).then(() => pkt.remove());
+  }
+  function moveChip(root, p, to, ms) {
+    return new Promise((resolve) => {
+      if (!p || !to) { resolve(); return; }
+      const r = root.getBoundingClientRect();
+      const b = to.getBoundingClientRect();
+      const x = b.left - r.left + b.width / 2 + "px";
+      const y = b.top - r.top + 8 + "px";
+      p.animate(
+        [{ left: p.style.left, top: p.style.top }, { left: x, top: y }],
+        { duration: ms, easing: "ease-in-out", fill: "forwards" }
+      ).onfinish = () => {
+        p.style.left = x;
+        p.style.top = y;
+        resolve();
+      };
+    });
+  }
+  function becomeTag(p, tag) {
+    return new Promise((resolve) => {
+      p.animate(
+        [{ transform: "scale(1)", filter: "blur(0px)" }, { transform: "scale(0.55)", filter: "blur(3px)" }],
+        { duration: 160, easing: "ease-in" }
+      ).onfinish = () => {
+        p.textContent = tag;
+        p.classList.remove("signal", "pale", "emo-pkt");
+        p.classList.add("tag");
+        p.style.margin = "";
+        p.animate(
+          [{ transform: "scale(0.55)", filter: "blur(3px)" }, { transform: "scale(1)", filter: "blur(0px)" }],
+          { duration: 200, easing: "ease-out" }
+        ).onfinish = resolve;
+      };
+    });
+  }
+
+  function fly(w, who, dest, done) {
+    const root = document.querySelector('[data-world="' + w.id + '"]') || document.getElementById("office");
+    const desk = root.querySelector('.desk[data-who="' + who + '"]');
+    const screen = (desk && desk.querySelector("[data-screen]")) || desk;
+    const agent = root.querySelector("[data-unit=agent]");
+    const warehouse = root.querySelector("[data-unit=warehouse]");
+    const gizmo = root.querySelector("[data-unit=gizmo]");
+    const tank = root.querySelector("[data-unit=tank]");
+    const ask = currentAsk(who, w);
+    const feel = askFeel(ask);
+    const tag = w.askChip;
+    const billed = dest === "compute" || dest === "pull";
+    const person = root.querySelector('.person[data-person="' + who + '"]');
+    const cloud = person && person.querySelector(".cloud");
+    const chip = placeChip(root, cloud || screen, feel.emo, "emo-pkt");
+    if (cloud) cloud.classList.add("sent");
+    const inbox = root.querySelector("[data-unit=inbox]") || warehouse;
+    const match = root.querySelector(".cmp") || warehouse;
+    const cache = root.querySelector("[data-unit=cache]") || warehouse;
+    const compute = root.querySelector("[data-unit=compute]") || warehouse;
+    const slice = root.querySelector("[data-unit=slice]") || gizmo;
+    sleepPlant(root);
+    if (w.gizmo) chip.classList.add("giz-route");
+    moveChip(root, chip, agent, 420).then(() => becomeTag(chip, tag)).then(() => {
+      if (dest === "queue") return wait(500);
+      if (dest === "bounce") return moveChip(root, chip, inbox, 320).then(() => moveChip(root, chip, screen, 400));
+      if (dest === "duck") {
+        if (gizmo) gizmo.classList.add("livepath");
+        return moveChip(root, chip, gizmo || slice, 320)
+          .then(() => moveChip(root, chip, slice, 360))
+          .then(() => playWalkRows(root, w, [0]))
+          .then(() => sendResult(root, slice || gizmo, screen, w.askChip));
+      }
+      if (dest === "pull") {
+        if (gizmo) gizmo.classList.add("livepath");
+        chip.classList.add("giz-route");
+        chip.textContent = "load data";
+        return moveChip(root, chip, gizmo || inbox, 300)
+          .then(() => moveChip(root, chip, compute, 380))
+          .then(() => wakeCompute(root, w))
+          .then(() => playWalkRows(root, w, [0]))
+          .then(() => {
+            dropCacheCard(root, w);
+            return moveChip(root, chip, slice || tank, 320);
+          })
+          .then(() => playWalkRows(root, w, [1]))
+          .then(() => sendResult(root, slice || compute, screen, w.askChip));
+      }
+      return moveChip(root, chip, inbox, 400).then(() => {
+        const pipe = root.querySelector(".pipe");
+        if (pipe) pipe.classList.add("feed");
+        return moveChip(root, chip, match, 260).then(() => {
+          if (dest === "cache") {
+            return scanCards(root, true)
+              .then(() => playWalkRows(root, w, [0]))
+              .then(() => sendResult(root, cache.querySelector(".rcard.match") || cache, screen, w.askChip));
+          }
+          if (w.lastFanout > 1) chip.textContent = w.lastFanout + " queries";
+          return scanCards(root, false)
+            .then(() => moveChip(root, chip, compute, 360))
+            .then(() => wakeCompute(root, w))
+            .then(() => playWalkRows(root, w, [0]))
+            .then(() => {
+              dropCacheCard(root, w);
+              return sendResult(root, cache.querySelector(".rcard.fresh") || compute, screen, w.askChip);
+            });
+        });
+      });
+    }).then(() => {
+      if (billed && tank && w.lastBite) {
+        const r = root.getBoundingClientRect();
+        const b = tank.getBoundingClientRect();
+        const f = document.createElement("div");
+        f.className = "bite-float";
+        f.textContent = "−" + money(w.lastBite) + (w.lastFanout > 1 ? " · " + w.lastFanout + " queries" : "");
+        f.style.left = b.left - r.left + b.width / 2 + "px";
+        f.style.top = b.top - r.top + "px";
+        root.appendChild(f);
+        setTimeout(() => f.remove(), 800);
+      }
+      w.tankFrom = w.whSpend;
+      chip.remove();
+    }).then(() => {
+      const last = w.log[0];
+      if (dest === "bounce") holdAsk(w, who);
+      if (last && last.who === PEOPLE[who].name && dest !== "queue") {
+        recordCard(w, who, last.via, last.sf == null ? 0 : last.sf);
+      }
+      setTimeout(done, billed ? 700 : 400);
+    });
+  }
+
+  function stepWorld(w) {
+    if (!w.built) return null;
+    talkFor(w);
+    if (waitingOnCut(w)) return null;
+    maybeUnlock(w);
+    talkFor(w);
+    const pool = [];
+    for (let i = 0; i < w.open; i++) {
+      if (w.restricted && i >= CORE) continue;
+      pool.push(i);
+    }
+    if (!pool.length) return null;
+    const who = pool[Math.floor(Math.random() * pool.length)];
+    const dest = apply(w, who);
+    talkFor(w);
+    return { w, who, dest };
+  }
+  function launchFlights(flights) {
+    if (!flights.length || state.flying) return;
+    mount();
+    state.flying = true;
+    let n = flights.length;
+    flights.forEach((f) => fly(f.w, f.who, f.dest, () => {
+      n -= 1;
+      if (n <= 0) {
+        state.flying = false;
+        state.worlds.forEach((x) => {
+          x.lastWho = -1;
+          x.computeOn = false;
+          x.cacheOn = false;
+          x.duckOn = false;
+          x.phase = "";
+          if (!x.walkOpen) {
+            x.walkLive = false;
+            x.walkStep = -1;
+          }
+        });
+        mount();
+      }
+    }));
+  }
+
+  function tick(now) {
+    if (!state.auto) return;
+    if (!state.lastTick) state.lastTick = now;
+    const dt = Math.min(80, now - state.lastTick);
+    state.lastTick = now;
+    state.playMs += dt;
+    state.askCool = Math.max(0, state.askCool - dt);
+    state.simHours += (dt / MONTH_MS) * WORK_HOURS;
+    state.clock += dt * 0.012;
+    accrue((dt / MONTH_MS) * WORK_HOURS);
+    state.worlds.forEach((w) => {
+      if (w.computeOn) w.runSec += dt / 1000;
+      else w.runSec = 0;
+    });
+    const widx = weekIndex();
+    if (widx !== state.lastWeek) {
+      state.lastWeek = widx;
+      state.worlds.forEach((w) => {
+        w.weeks[widx].seats = Math.max(w.weeks[widx].seats, w.open);
+        accrueGiz(w);
+      });
+      mount();
+    }
+    const gidx = Math.max(...state.worlds.map(gizWeekIndex));
+    if (gidx !== state.lastGizWeek) {
+      state.lastGizWeek = gidx;
+      state.worlds.forEach(accrueGiz);
+      mount();
+    }
+    if (!state.flying) {
+      const due = [];
+      state.worlds.forEach((w) => {
+        if (!w.built || waitingOnCut(w)) return;
+        w.askAcc = (w.askAcc || 0) + dt * askRate(w);
+        if (w.askAcc > 1) {
+          w.askAcc -= 1;
+          const f = stepWorld(w);
+          if (f) due.push(f);
+        }
+      });
+      if (due.length) launchFlights(due);
+    }
+    if (state.playMs >= YEAR_MS) {
+      state.playMs = YEAR_MS;
+      state.auto = false;
+      mount();
+      return;
+    }
+    state.raf = requestAnimationFrame(tick);
+  }
+
+  function startAuto() {
+    if (state.auto) return;
+    if (!state.worlds.some((w) => w.built && !waitingOnCut(w))) return;
+    state.auto = true;
+    state.lastTick = 0;
+    state.raf = requestAnimationFrame(tick);
+    mount();
+  }
+
+  function reset(keepGizmo) {
+    cancelAnimationFrame(state.raf);
+    cancelAnimationFrame(state.chartRaf);
+    state.chartRaf = 0;
+    const giz = keepGizmo && state.worlds[0] && state.worlds[0].gizmo;
+    const built = state.worlds[0] && state.worlds[0].built;
+    state.auto = false;
+    state.playMs = 0;
+    state.simHours = 0;
+    state.lastTick = 0;
+    state.askAcc = 0;
+    state.flying = false;
+    state.clock = 9 * 60;
+    state.lastWeek = 0;
+    state.lastGizWeek = -1;
+    state.lastMonth = 0;
+    state.pausedForBudget = false;
+    state.askCool = 0;
+    state.worlds = state.split
+      ? [makeWorld("a", false), makeWorld("b", true)]
+      : [makeWorld("a", !!giz)];
+    state.worlds.forEach((w) => { w.built = built && keepGizmo; });
+    if (state.split) state.worlds.forEach((w) => { w.built = built; });
+    mount();
+  }
+
+  document.getElementById("auto").onclick = () => {
+    if (state.auto) {
+      state.auto = false;
+      mount();
+    } else {
+      state.worlds.forEach((w) => { w.built = true; });
+      startAuto();
+    }
+  };
+  document.getElementById("gizmo").onclick = () => {
+    if (state.split) return;
+    const w = state.worlds[0];
+    if (w.gizmo) stopGiz(w);
+    else startGiz(w);
+    mount();
+  };
+  document.getElementById("split").onclick = () => {
+    state.split = !state.split;
+    const built = state.worlds[0].built;
+    reset(false);
+    state.worlds.forEach((w) => { w.built = built; });
+    mount();
+    if (built) startAuto();
+  };
+  document.getElementById("reset").onclick = () => reset(true);
+  let phoneLayout = onPhone();
+  window.addEventListener("resize", () => {
+    const phone = onPhone();
+    if (phone !== phoneLayout) {
+      phoneLayout = phone;
+      parkBodies();
+      mount();
+      return;
+    }
+    if (!state.split || phone) {
+      fitFloor();
+      return;
+    }
+    const sc = paneScale();
+    document.querySelectorAll("#office .office").forEach((el) => {
+      el.style.setProperty("--scale", sc);
+    });
+    fitFloor();
+  });
+
+  startAuto();
+})();
+</script>
+</body>
+</html>
