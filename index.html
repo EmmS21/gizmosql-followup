@@ -2027,30 +2027,35 @@
 
     @media (max-width: 720px), (max-height: 520px) and (max-width: 960px) {
       html, body {
-        height: auto;
-        min-height: 100%;
-        min-height: 100dvh;
+        height: auto !important;
+        min-height: 0;
         overflow: auto;
         overflow-x: hidden;
         overscroll-behavior-x: none;
       }
       #game {
-        height: auto;
-        min-height: 100dvh;
+        height: auto !important;
+        min-height: 0;
         padding-bottom: 0;
         padding-left: env(safe-area-inset-left);
         padding-right: env(safe-area-inset-right);
       }
       .main {
-        position: relative;
-        inset: auto;
+        position: relative !important;
+        top: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        left: auto !important;
+        inset: auto !important;
+        height: auto !important;
         flex-direction: column;
         flex: none;
       }
       .ledger { padding-bottom: 56px; }
       .office,
       #office.offices {
-        flex: none;
+        flex: 0 0 auto !important;
+        height: auto !important;
         width: auto;
         min-width: 0;
         min-height: 0;
@@ -2147,32 +2152,56 @@
       .ptab b { font-size: 7px; padding: 3px 6px; }
       .agent b,
       .gbox b { font-size: 9px; padding: 4px 8px; }
-      .floor {
-        position: relative;
-        inset: auto;
+      .floor,
+      .office.split .floor {
+        position: relative !important;
+        top: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        left: auto !important;
+        inset: auto !important;
+        flex: 0 0 auto;
+        height: auto !important;
+        min-height: 0 !important;
         display: grid;
         grid-template-columns: 1fr 1fr;
         justify-items: center;
         align-content: start;
-        gap: 92px 8px;
-        padding: 88px 8px 108px;
-        min-height: 0;
+        align-items: start;
+        gap: 8px 8px;
+        padding: 6px 8px 52px;
       }
-      .office.split .floor {
-        position: relative;
-        inset: auto;
-        min-height: 0;
-        padding-bottom: 96px;
+      .floor > .person {
+        position: absolute;
+        grid-column: 1;
+        grid-row: 1;
       }
       .desk {
         position: relative !important;
         left: auto !important;
         top: auto !important;
         width: min(148px, 46vw);
+        padding-top: calc(88px * var(--scale) + 2px);
+      }
+      .desk .screen {
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      .desk .top { position: relative; }
+      .desk .stack {
+        top: auto;
+        bottom: 3px;
       }
       .cloud { width: 24px; height: 24px; }
       .cloud .emo { font-size: 13px; }
-      .askline { font-size: 12px; max-width: min(160px, 48vw); }
+      .person .askline {
+        top: auto;
+        bottom: 100%;
+        margin: 0 0 4px;
+        max-width: min(160px, 48vw);
+        font-size: 12px;
+      }
       .card.open {
         width: min(120px, 68vw);
         max-width: 68vw;
@@ -2271,8 +2300,8 @@
       }
       .floor,
       .office.split .floor {
-        gap: 72px 8px;
-        padding: 72px 8px 32px;
+        gap: 8px 8px;
+        padding: 6px 8px 24px;
       }
       .bay { min-height: 32px; }
       .budget-banner { font-size: 9px; padding: 3px 5px; }
