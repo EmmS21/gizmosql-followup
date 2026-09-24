@@ -1540,6 +1540,8 @@
       line-height: 1.35;
       color: #5a5048;
     }
+    .ledger .why.usage { font-size: 13px; font-weight: 800; color: #2a2420; }
+    .ledger .why.usage.down { color: var(--coral); }
     .compare {
       padding: 0 12px 8px;
       flex: 0 0 auto;
@@ -1745,7 +1747,7 @@
     .mrow.mute { opacity: 0.38; }
     .mrow .pay { color: var(--coral); font-weight: 800; }
     .mrow .gz { color: #2f6f8a; font-weight: 800; }
-    .mrow .ok { color: #2d6a32; font-weight: 800; }
+    .mrow .ok { color: #5c4a32; font-weight: 800; }
     .mrow .proj, .yeartot .proj { opacity: 0.4; }
     .mrow em { display: block; font-style: normal; font-size: 8px; opacity: 0.65; }
     .yeartot {
@@ -1758,7 +1760,7 @@
     }
     .yeartot .pay { color: var(--coral); }
     .yeartot .gz { color: #2f6f8a; }
-    .yeartot .ok { color: #2d6a32; }
+    .yeartot .ok { color: #5c4a32; }
     .yeartot .mute { opacity: 0.4; }
     .mrow > *,
     .yeartot > * {
@@ -2465,7 +2467,7 @@
       </aside>
     </div>
     <div class="hud">
-      <button class="tiny" id="auto" type="button">Pause</button>
+      <button class="tiny" id="auto" type="button">Run office</button>
       <button class="tiny" id="gizmo" type="button">INSTALL GIZMOSQL</button>
       <button class="tiny" id="split" type="button">GizmoSQL v Snowflake</button>
       <button class="tiny" id="reset" type="button">Reset</button>
@@ -2473,7 +2475,7 @@
   </div>
 <script>
 (function () {
-  const WEEK_MS = 8000;
+  const WEEK_MS = 20000;
   const WEEKS = 4;
   const MONTHS = 12;
   const TOTAL_WEEKS = WEEKS * MONTHS;
@@ -2481,7 +2483,10 @@
   const YEAR_MS = MONTH_MS * MONTHS;
   const WORK_HOURS = 176;
   const SEAT_MO = 400;
-  const BUDGET = 3000;
+  const BUDGET = 30000;
+  const QUERIES_MO = 498;
+  const CACHE_RATE = 0.30;
+  const STAY_ON_WAREHOUSE = 11 / 32;
   const BUDGET_STEP = 1500;
   const LICENSE_MO = 800;
   const MACHINE_MO = 4 * 0.5 * WORK_HOURS;
@@ -2491,6 +2496,7 @@
   const CHUNK = 85;
   const COOL_MS = 2400;
   const SIZES = [
+    { id: 0.125, label: "X-Small" },
     { id: 0.5, label: "Small" },
     { id: 1, label: "Large" },
     { id: 2, label: "2XL" },
@@ -2505,7 +2511,7 @@
       suspendMin: 5,
       minSec: 60,
       hourly: 24,
-      why: "Large warehouse = 8 credits/hour. Enterprise us-east-1 list = $3/credit. High-scale follow-up SQL keeps it up. Same ask can hit the result cache: $0 compute.",
+      why: "X-Small = 1 credit/hour. Enterprise us-east-1 list = $3/credit, so $3/hour. Large = 8 credits/hour, $24/hour. Size scales the statement price from Large. Same ask can hit the result cache: $0 compute.",
     },
     bigquery: {
       name: "BigQuery",
@@ -2644,8 +2650,12 @@
 
   function money(n) {
     const v = Math.max(0, n);
-    if (v < 0.5) return "$0";
-    return "$" + Math.round(v).toLocaleString();
+    const cents = Math.round(v * 100) / 100;
+    if (cents < 0.005) return "$0";
+    if (Math.abs(cents - Math.round(cents)) < 0.001) {
+      return "$" + Math.round(cents).toLocaleString();
+    }
+    return "$" + cents.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   function homeOf(i, office) {
@@ -2726,7 +2736,7 @@
       lastCacheKey: "",
       dim: PEOPLE.map(() => 0),
       focus: PEOPLE.map((p) => (p.sql === "gmv|week" ? -1 : 0)),
-      built: true,
+      built: false,
       open: CORE,
       heldOpen: false,
       opsMul: 1,
@@ -2862,7 +2872,7 @@
   }
 
   const state = {
-    split: false,
+    split: true,
     auto: false,
     playMs: 0,
     simHours: 0,
@@ -2870,7 +2880,7 @@
     raf: 0,
     askAcc: 0,
     engine: "snowflake",
-    worlds: [makeWorld("a", false)],
+    worlds: [makeWorld("a", false), makeWorld("b", true)],
     flying: false,
     clock: 9 * 60,
     chartRaf: 0,
@@ -2879,8 +2889,9 @@
     lastMonth: 0,
     pausedForBudget: false,
     askCool: 0,
-    whSize: 1,
+    whSize: 0.125,
     pinTalk: false,
+    yearRun: false,
   };
 
   function eng() { return ENGINE[state.engine]; }
@@ -3101,17 +3112,17 @@
           <div class="${locked ? "capped" : ""}"><div class="n">${money(monthSf)}</div>
             <div class="sub">${monthAsks(capW)} questions · ${capW.open} seats</div></div>
           <div class="${locked ? "capped" : ""}"><div class="n">${money(yearSf)}</div>
-            <div class="sub">${capW.questions} questions · ${capW.open} seats</div></div>
+            <div class="sub">${Math.round(capW.questions)} questions · ${capW.open} seats</div></div>
           <div class="lab">GizmoSQL</div>
           <div><div class="n">${money(monthGz)}</div>
             <div class="sub">${monthAsks(gizW)} questions · ${gizW.open} seats</div></div>
           <div><div class="n">${money(yearGz)}</div>
-            <div class="sub">${gizW.questions} questions · ${gizW.open} seats</div></div>
+            <div class="sub">${Math.round(gizW.questions)} questions · ${gizW.open} seats</div></div>
           <div class="lab ex">Extra</div>
           <div class="ex"><div class="n">+${money(monthEx)}</div>
             <div class="sub">${Math.max(0, monthAsks(gizW) - monthAsks(capW))} more questions</div></div>
           <div class="ex"><div class="n">+${money(yearEx)}</div>
-            <div class="sub">${Math.max(0, gizW.questions - capW.questions)} more questions · ${Math.max(0, gizW.open - capW.open)} more seats</div></div>
+            <div class="sub">${Math.max(0, Math.round(gizW.questions - capW.questions))} more questions · ${Math.max(0, gizW.open - capW.open)} more seats</div></div>
         </div>
         <div class="sub spend${locked ? " dead" : (capW.warn ? " warn" : "")}">${whName} ${sfWhy}</div>
         <div class="exrow">${cells}</div>
@@ -3362,22 +3373,32 @@
       return n + bill.reduce((a, s) => a + ((s && s.asks) || 0), 0);
     }, 0);
   }
+  function monthQueries(w, mo) {
+    const m = mo == null ? monthIndex() : mo;
+    return monthSlice(m).reduce((n, i) => n + ((w.weeks[i] && w.weeks[i].researchQ) || 0), 0);
+  }
   function monthRevAt(w, mo) {
-    return monthAsks(w, mo) * ASK_REV + monthCompany(w, mo);
+    return monthQueries(w, mo) * ASK_REV + monthCompany(w, mo);
   }
   function monthRev(w) {
     return monthRevAt(w, monthIndex());
   }
   function revPairHTML(w) {
+    if (!state.auto && !(w.questions > 0)) {
+      return `<div class="ba">
+        <div><em>This month</em><div class="n">—</div><div class="sub">—</div></div>
+        <div><em>Year</em><div class="n">—</div><div class="sub">—</div></div>
+      </div>`;
+    }
     const month = monthRev(w);
     const year = yourRev(w);
-    const asksMo = monthAsks(w);
+    const asksMo = Math.round(monthQueries(w));
     return `<div class="ba">
       <div><em>This month</em><div class="n">${money(month)}</div>
         <div class="sub">${asksMo} questions · ${w.open} seats · ${money(w.open * SEAT_MO)} /mo</div>
       </div>
       <div><em>Year</em><div class="n">${money(year)}</div>
-        <div class="sub">${w.questions} questions · ${money(w.aiRev)} usage · ${money(yearCompany(w))} seats</div>
+        <div class="sub">${Math.round(w.questions)} questions · ${money(w.aiRev)} usage · ${money(yearCompany(w))} seats</div>
       </div>
     </div>`;
   }
@@ -3552,6 +3573,22 @@
   function billAi(w) {
     w.aiRev += ASK_REV;
   }
+  function seatMul(w) {
+    return Math.pow(2, w.open - CORE);
+  }
+  function bookResearch(w, dt) {
+    if (!w.built || dt <= 0) return;
+    if (!w.gizmo && capLocked(w)) return;
+    const q = (dt / MONTH_MS) * QUERIES_MO * (w.opsMul || 0) * seatMul(w) * pace(w);
+    const miss = queryCost() * QUERIES_PER_ASK * (1 - CACHE_RATE);
+    const dollars = q * miss * (w.gizmo ? STAY_ON_WAREHOUSE : 1);
+    w.questions += q;
+    w.aiRev += q * ASK_REV;
+    billWarehouse(w, dollars);
+    addWeekQuery(w, true, dollars);
+    const wk = w.weeks[weekIndex()];
+    wk.researchQ = (wk.researchQ || 0) + q;
+  }
   function pace(w) {
     if (w.gizmo) return 1;
     if (w.restricted) return 0.28;
@@ -3560,6 +3597,13 @@
   }
   function askRate(w) {
     return 0.0004 * w.open * (w.gizmo ? 2 : 1) * pace(w) * (w.opsMul || 0);
+  }
+  function rampQuestions(w) {
+    if (!w.gizmo || !w.built) return;
+    if (budgetUsed(w) >= 0.5) return;
+    const cur = w.opsMul || 1;
+    if (cur >= 8) return;
+    w.opsMul = cur + 1;
   }
   function tabState(w, i) {
     if (i >= w.open) return "off";
@@ -3629,7 +3673,7 @@
       return { cls: "", text: eng().name + " if you stayed · " + pct + "% of " + money(cap) };
     }
     if (w.gizmo) {
-      return { cls: "", text: "Local queries. Warehouse budget barely moving." };
+      return { cls: "", text: "WAREHOUSE BUDGET · " + pct + "% of " + money(cap) };
     }
     if (w.restricted || usedDead(w)) return { cls: "dead", text: "USAGE RESTRICTED." };
     if (w.warn) return { cls: "warn", text: "⚠ Warehouse spend getting high." };
@@ -3763,7 +3807,7 @@
     w.note = p.name + " (" + p.title + ") wants a seat: “" + p.dash + "” — tied to this week’s GMV.";
     if (w.gizmo) {
       pushTick(w, "RevOps", p.name + " (" + p.title + ") wants a seat. Warehouse cost isn't the blocker anymore.", "seat-" + w.open);
-      pushTick(w, "Exec", "Turn it on. More questions, and another " + money(SEAT_MO) + " a month.", "seat-go-" + w.open);
+      pushTick(w, "Exec", "Turn it on. This month's questions double, and another " + money(SEAT_MO) + " a month.", "seat-go-" + w.open);
     } else {
       pushTick(w, "RevOps", p.name + " (" + p.title + ") wants a seat for “" + p.dash + "”.", "seat-" + w.open);
     }
@@ -3772,10 +3816,10 @@
   function tickScaleUp(w, p) {
     if (w.gizmo) {
       pushTick(w, "RevOps", p.name + " (" + p.title + ") wants a seat. Warehouse cost isn't the blocker anymore.");
-      pushTick(w, "Exec", "Turn it on. More questions, and another " + money(SEAT_MO) + " a month.");
+      pushTick(w, "Exec", "Turn it on. This month's questions double, and another " + money(SEAT_MO) + " a month.");
       return;
     }
-    pushTick(w, "RevOps", "We're adding " + p.name + " (" + p.title + "). More people will ask.");
+    pushTick(w, "RevOps", "We're adding " + p.name + " (" + p.title + "). This month's questions double.");
   }
   function tickScaleDown(w, p) {
     if (w.gizmo) {
@@ -3834,7 +3878,7 @@
       if (last) recordCard(w, who, last.via, last.sf == null ? 0 : last.sf);
     }
     settleAsk(w);
-    return { asked: Math.max(0, w.questions - q0), spent: Math.max(0, w.whSpend - before) };
+    return { asked: Math.round(Math.max(0, w.questions - q0)), spent: Math.max(0, w.whSpend - before) };
   }
   function runOps(w) {
     if (waitingOnCut(w) || capLocked(w)) {
@@ -3918,20 +3962,21 @@
     state.pinTalk = true;
     if (delta < 0) {
       if (cur <= 0) return false;
-      w.opsMul = cur - 1;
+      w.opsMul = cur <= 1 ? 0 : cur / 2;
       w.heldOpen = true;
       if (w.opsMul === 0) {
         pushTick(w, "RevOps", "We kept the seats. We stopped asking so the warehouse bill can cool.");
         pushTick(w, "Finance", "Seats stay on the invoice. Warehouse spend stays at " + budgetText(w) + " until we ask again.");
       } else {
-        pushTick(w, "RevOps", "Fewer questions from here. Ask pace is now ×" + w.opsMul + ".");
+        pushTick(w, "RevOps", "Fewer questions from here. This month's pace is now ×" + w.opsMul + ".");
         pushTick(w, "Finance", "Warehouse budget stays " + budgetText(w) + ". Already-spent dollars do not come back.");
       }
       talkFor(w);
       if (w.alt && !w.silent) w.alt.opsMul = w.opsMul;
       return true;
     }
-    w.opsMul = Math.min(4, Math.max(1, cur + 1));
+    if (delta > 0 && cur >= 8) return false;
+    w.opsMul = Math.min(8, cur === 0 ? 1 : cur * 2);
     w.heldOpen = true;
     runOps(w);
     if (w.alt && !w.silent) {
@@ -3972,7 +4017,7 @@
           ? "Cap hit. + is locked. Pick in the restrict box. The ticker is the company talking."
           : "New seat asks once. Warehouse budget updates on that question.");
       const pace = (w.opsMul || 0) === 0 ? "Asking stopped" : "Asking ×" + (w.opsMul || 1);
-      asks = pace + " · " + monthAsks(w) + " questions this month · " + budgetText(w);
+      asks = pace + " · " + Math.round(monthQueries(w)) + " questions this month · " + budgetText(w);
       askHint = w.gizmo
         ? "Each + is one question per seat. Follow-ups stay off the warehouse invoice."
         : (upLock
@@ -3990,8 +4035,8 @@
         : "Same client seats. New seats ask once on both sides.";
       const paceA = (a.opsMul || 0) === 0 ? "stopped" : "×" + (a.opsMul || 1);
       const paceB = (b.opsMul || 0) === 0 ? "stopped" : "×" + (b.opsMul || 1);
-      asks = eng().name + " " + paceA + " · " + monthAsks(a) + " asks · " + budgetText(a)
-        + " · GizmoSQL " + paceB + " · " + monthAsks(b) + " asks · " + budgetText(b);
+      asks = eng().name + " " + paceA + " · " + Math.round(monthQueries(a)) + " asks · " + budgetText(a)
+        + " · GizmoSQL " + paceB + " · " + Math.round(monthQueries(b)) + " asks · " + budgetText(b);
       askHint = upLock
         ? eng().name + " cannot add questions. Pick in the restrict box. Watch that ticker."
         : "Each + is one question per seat on both offices. Watch " + eng().name + " hit the cap.";
@@ -4052,7 +4097,6 @@
       w.lastFanout = QUERIES_PER_ASK;
       w.lastBite = 0;
       bumpAsk(w, who, false, true);
-      billAi(w);
       line("cache", 0, null);
       setWalk(w, "cache");
       return "cache";
@@ -4063,7 +4107,6 @@
       w.phase = "duck";
       w.gizRuns += 1;
       bumpAsk(w, who, true, false);
-      billAi(w);
       billAskQueries(w, false, QUERIES_PER_ASK);
       accrueGiz(w);
       line("GizmoSQL", null, 0);
@@ -4080,8 +4123,7 @@
       w.cacheParts = w.sqlParts.slice();
       w.cacheChip = w.askChip;
       bumpAsk(w, who, true, true);
-      billAi(w);
-      const cost = billAskQueries(w, true, 1);
+      const cost = billAskQueries(w, false, 1);
       accrueGiz(w);
       line("pull", cost, 0);
       setWalk(w, "pull");
@@ -4094,8 +4136,7 @@
     w.cacheParts = w.sqlParts.slice();
     w.cacheChip = w.askChip;
     bumpAsk(w, who, true, true);
-    billAi(w);
-    const cost = billAskQueries(w, true, QUERIES_PER_ASK);
+    const cost = billAskQueries(w, false, QUERIES_PER_ASK);
     line("warehouse", cost, null);
     setWalk(w, "warehouse");
     return "compute";
@@ -4599,12 +4640,14 @@
     }).join("");
     const title = document.getElementById("ledgerTitle");
     if (title) title.textContent = "The invoices";
-    document.getElementById("ledgerWhy").textContent =
+    const why = document.getElementById("ledgerWhy");
+    why.classList.remove("usage", "down");
+    why.textContent =
       "You earn " + money(ASK_REV) + " each time someone asks, and " + money(SEAT_MO) + " a month for each seat. If their warehouse invoice hits the cap, they close a seat. That person stops asking, and your revenue drops. GizmoSQL does one warehouse pull, then the next questions stay off their invoice.";
     const gizLine = extraBlock(w, w.alt, whName);
     document.getElementById("compare").innerHTML = `
     <button type="button" class="soldbig${w.gizmo ? " giz" : ""}" data-unit="sold">
-      <div class="k">AI Analyst · your revenue</div>
+      <div class="k">Money you make</div>
       ${revPairHTML(w)}
       ${gizLine}
     </button>
@@ -4635,35 +4678,102 @@
     return bill.reduce((n, s, k) => n + (k < w.open ? s.asks : 0), 0);
   }
 
+  function yearWh(w) {
+    let n = 0;
+    const now = monthIndex();
+    for (let mo = 0; mo <= now; mo++) n += monthSf(w, mo);
+    return n;
+  }
+  function paintUsageLine(left, right) {
+    const el = document.getElementById("ledgerWhy");
+    const saved = yearWh(left) - yearWh(right);
+    const extra = yourRev(right) - yourRev(left);
+    if (!(left.questions > 0) && !(right.questions > 0)) {
+      el.classList.remove("usage", "down");
+      el.textContent = "";
+      return;
+    }
+    el.classList.add("usage");
+    el.classList.toggle("down", extra < 0);
+    if (extra > 0) {
+      el.textContent = "They pay " + money(extra) + " more for usage because the warehouse bill is " + money(saved) + " lower.";
+    } else if (extra < 0) {
+      el.textContent = "GizmoSQL is lowering revenue by " + money(-extra) + ". Warehouse bill is " + money(Math.abs(saved)) + (saved >= 0 ? " lower." : " higher.");
+    } else {
+      el.textContent = "They are not paying more for usage. Warehouse bill is " + money(Math.abs(saved)) + (saved >= 0 ? " lower." : " higher.");
+    }
+  }
+  function warehouseBook(left, right) {
+    const nowM = monthIndex();
+    let yWithout = 0;
+    let yWith = 0;
+    const months = Array.from({ length: MONTHS }, (_, mo) => {
+      const started = nowM > 0 || monthSf(left, 0) > 0 || monthSf(right, 0) > 0;
+      if (!started || mo > nowM) {
+        return `<div class="mrow"><span>M${mo + 1}</span><span class="pay">—</span><span class="gz">—</span><span class="ok">—</span></div>`;
+      }
+      const without = monthSf(left, mo);
+      const withGiz = monthSf(right, mo);
+      yWithout += without;
+      yWith += withGiz;
+      return `<div class="mrow${mo === nowM ? " now" : ""}">
+        <span>M${mo + 1}${mo === nowM ? "<em>now</em>" : ""}</span>
+        ${amt(without, "pay", false)}
+        ${amt(withGiz, "gz", false)}
+        ${amt(without - withGiz, "ok", false)}
+      </div>`;
+    }).join("");
+    return { months, yWithout, yWith, ySaved: yWithout - yWith, started: yWithout > 0 || yWith > 0 };
+  }
+  function burstWeek() {}
+  function stepYearWeek() {
+    if (!state.yearRun) return;
+    accrue();
+    state.worlds.forEach((w) => {
+      if (!w.built) return;
+      burstWeek(w);
+      rampQuestions(w);
+    });
+    const doneMonth = weekIndex() % WEEKS === WEEKS - 1;
+    if (doneMonth) mount();
+    if (weekIndex() >= TOTAL_WEEKS - 1) {
+      state.yearRun = false;
+      state.auto = false;
+      mount();
+      return;
+    }
+    state.playMs += WEEK_MS;
+    if (doneMonth) setTimeout(stepYearWeek, 200);
+    else stepYearWeek();
+  }
   function paintCompareLedger(left, right) {
     const whName = eng().name;
-    const book = ledgerBook(left, right, false);
-    const { months, ySf, yGz, ySaved, anyGz, sfProjYear, gzProjYear, savedProjYear } = book;
+    const book = warehouseBook(left, right);
+    const { months, yWithout, yWith, ySaved, started } = book;
     const title = document.getElementById("ledgerTitle");
     if (title) title.textContent = splitLabel();
-    document.getElementById("ledgerWhy").textContent =
-      "Left: " + whName + " hits the cap and questions drop. Right: one pull, follow-ups stay off their invoice.";
+    paintUsageLine(left, right);
     document.getElementById("compare").innerHTML = `
     <div class="vs-ledgers">
       <button type="button" class="soldbig" data-unit="sold" data-world="a">
-        <div class="k">${whName} · your revenue</div>
+        <div class="k">Money you make · ${whName}</div>
         ${revPairHTML(left)}
       </button>
       <button type="button" class="soldbig giz" data-unit="sold" data-world="b">
-        <div class="k">GizmoSQL · your revenue</div>
+        <div class="k">Money you make · GizmoSQL</div>
         ${revPairHTML(right)}
       </button>
     </div>
     ${steerHTML(null)}
     <div class="weeknow">
-      <div class="k">What they pay to run SQL</div>
+      <div class="k">Warehouse bill</div>
       <div class="yeartot">
         <span>Year</span>
-        ${amt(ySf, "pay", sfProjYear)}
-        ${amt(anyGz ? yGz : null, "gz", gzProjYear)}
-        ${amt(anyGz ? ySaved : null, "ok", savedProjYear)}
+        ${started ? amt(yWithout, "pay", false) : '<span class="pay">—</span>'}
+        ${started ? amt(yWith, "gz", false) : '<span class="gz">—</span>'}
+        ${started ? amt(ySaved, "ok", false) : '<span class="ok">—</span>'}
       </div>
-      <div class="mrow head"><span></span><span>${whName}</span><span>GizmoSQL</span><span>Saved</span></div>
+      <div class="mrow head"><span></span><span>Without</span><span>With GizmoSQL</span><span>Lower by</span></div>
       <div class="monthlist">${months}</div>
     </div>`;
     fillTalk(tickerCompareHTML(left, right), true);
@@ -4761,7 +4871,7 @@
     document.getElementById("gizmo").style.visibility = state.split ? "hidden" : "visible";
     document.getElementById("split").classList.toggle("on", state.split);
     document.getElementById("auto").classList.toggle("on", state.auto);
-    document.getElementById("auto").textContent = state.auto ? "Pause" : "Run the office";
+    document.getElementById("auto").textContent = state.auto ? "Pause" : "Run office";
     document.querySelectorAll("[data-eng]").forEach((btn) => {
       btn.onclick = (ev) => {
         ev.stopPropagation();
@@ -5333,6 +5443,8 @@
     state.simHours += (dt / MONTH_MS) * WORK_HOURS;
     state.clock += dt * 0.012;
     accrue((dt / MONTH_MS) * WORK_HOURS);
+    state.worlds.forEach((w) => bookResearch(w, dt));
+    state.worlds.forEach((w) => checkBudget(w));
     state.worlds.forEach((w) => {
       if (w.computeOn) w.runSec += dt / 1000;
       else w.runSec = 0;
@@ -5401,6 +5513,7 @@
     state.lastMonth = 0;
     state.pausedForBudget = false;
     state.askCool = 0;
+    state.yearRun = false;
     state.worlds = state.split
       ? [makeWorld("a", false), makeWorld("b", true)]
       : [makeWorld("a", !!giz)];
@@ -5411,9 +5524,13 @@
   }
 
   document.getElementById("auto").onclick = () => {
-    if (state.auto) {
+    if (state.auto || state.yearRun) {
       state.auto = false;
+      state.yearRun = false;
       mount();
+    } else if (state.split) {
+      state.worlds.forEach((w) => { w.built = true; });
+      startAuto();
     } else {
       state.worlds.forEach((w) => { w.built = true; });
       startAuto();
@@ -5455,7 +5572,7 @@
     fitFloor();
   });
 
-  startAuto();
+  mount();
 })();
 </script>
 </body>
